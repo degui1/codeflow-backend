@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CodeFlow Workflow",
+  "description": "Esquema para validação e intellisense do CodeFlow",
+  "type": "object",
+  "properties": {
+    "on": {
+      "type": "object",
+      "description": "Eventos que disparam o workflow",
+      "rules": ["x", "y", "customRule"],
+      "properties": {
+        "push": {
+          "type": "boolean",
+          "description": "Executar quando houver push",
+          "customRule": []
+        },
+        "pull_request": {
+          "type": "boolean",
+          "description": "Executar quando houver pull request"
+        }
+      }
+    },
+    "jobs": {
+      "type": "object",
+      "description": "Tarefas que serão executadas",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "runs-on": {
+              "type": "string",
+              "description": "Máquina onde o job será executado",
+              "enum": ["ubuntu-latest", "windows-latest"]
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Nome do passo"
+                  },
+                  "run": {
+                    "type": "string",
+                    "description": "Comando a ser executado"
+                  }
+                },
+                "required": ["name", "run"]
+              }
+            }
+          },
+          "required": ["runs-on", "steps"]
+        }
+      }
+    }
+  },
+  "required": ["on", "jobs"]
+}

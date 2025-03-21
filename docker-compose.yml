@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   code-flow-pg:
     image: 'bitnami/postgresql'
