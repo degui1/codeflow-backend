@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
+
 # CodeFlow - Backend
 
 ## RFs (Requisitos funcionais)
@@ -36,3 +40,35 @@
 - [ ] Todas as listas de dados precisam estar paginadas com 20 itens por página;
 - [ ] O usuário deve ser identificado por um JWT (JSON Web Token);
 - [ ] A descrição dos posts deve ser feita em markdown;
+
+## Project setup
+
+```bash
+$ pnpm install
+```
+
+## Compile and run the project
+
+```bash
+# development
+$ pnpm run start
+
+# watch mode
+$ pnpm run start:dev
+
+# production mode
+$ pnpm run start:prod
+```
+
+## Run tests
+
+```bash
+# unit tests
+$ pnpm run test
+
+# e2e tests
+$ pnpm run test:e2e
+
+# test coverage
+$ pnpm run test:cov
+```
