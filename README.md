@@ -33,7 +33,11 @@
 - [ ] O usuário não pode gerenciar um post que não seja de sua autoria;
 - [ ] O usuário não pode comentar em posts privados;
 - [ ] O usuário só pode gerenciar sua própria conta;
-- [ ] O usuário só pode editar um flow de sua autoria.
+- [ ] O usuário só pode editar um flow de sua autoria;
+- [ ] O usuário não pode baixar concluir a criação de um flow sem que todos os campos tenham sido validados;
+- [ ] O usuário não pode inserir qualquer valor em campos do flow com valores pré-definidos, devendo apenas selecionar os pré-configurados;
+- [ ] O usuário só pode explorar posts públicos na comunidade;
+- [ ] O usuário só pode visualizar o histórico de posts públicos de outro usuário.
 
 ## RNFs (Requisitos não funcionais)
 
@@ -43,6 +47,7 @@
 - [ ] A descrição dos posts deve ser feita em markdown;
 - [ ] Os comentários devem suportar markdown;
 - [ ] Todos os componentes precisam ser responsivos;
-- [ ] Os loadings devem ser feitos usando Skeleton.
+- [ ] Os componentes que precisam consumir dados já na sua inicialização deve estar protegido por um fallback usando Skeleton;
 - [ ] Os loadings para atualização de dados de componentes já criados deve usar um spinner;
 - [ ] Toda lista de dados deve ter suporte a filtragem;
+- [ ] Toda ação de deleção deve passar por uma dupla checagem.
