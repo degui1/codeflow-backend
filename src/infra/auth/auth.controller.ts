@@ -39,6 +39,8 @@ export class AuthController {
     // passe um param para rota com a mensagem de erro
     // }
 
+    console.log('verifier:', req.cookies[CODE_VERIFIER_COOKIE_KEY]);
+
     const OAuthUser = await this.oauthService.fetchUser(
       code,
       state,

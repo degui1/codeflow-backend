@@ -41,7 +41,7 @@ export class OAuthService {
     baseUrl.searchParams.set('code_challenge_method', 'S256');
     baseUrl.searchParams.set(
       'code_challenge',
-      crypto.hash('sha256', codeVerifier),
+      crypto.hash('sha256', codeVerifier, 'base64url'),
     );
     return {
       url: baseUrl.toString(),
@@ -182,6 +182,7 @@ export class OAuthService {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax' as const,
         maxAge: Date.now() + COOKIE_EXPIRE_TIME_SECONDS * 1000,
+        path: '/',
       },
     };
   }
