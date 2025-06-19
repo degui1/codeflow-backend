@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from 'generated/prisma';
 import { env } from './env';
 import { randomUUID } from 'node:crypto';
 

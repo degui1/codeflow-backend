@@ -117,26 +117,35 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.AccountScalarFieldEnum = {
+  user_id: 'user_id',
+  type: 'type',
+  provider: 'provider',
+  provider_account_id: 'provider_account_id',
+  refresh_token: 'refresh_token',
+  access_token: 'access_token',
+  expires_at: 'expires_at',
+  token_type: 'token_type',
+  scope: 'scope',
+  id_token: 'id_token',
+  session_state: 'session_state'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  session_token: 'session_token',
+  user_id: 'user_id',
+  expires: 'expires',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  emailVerified: 'emailVerified',
+  image: 'image',
   username: 'username',
-  created_at: 'created_at'
-};
-
-exports.Prisma.PostScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
-  description: 'description',
-  downloads: 'downloads',
-  visibility: 'visibility',
-  user_id: 'user_id'
-};
-
-exports.Prisma.LikeScalarFieldEnum = {
-  user_id: 'user_id',
-  post_id: 'post_id',
   created_at: 'created_at'
 };
 
@@ -149,15 +158,20 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-exports.Visibility = exports.$Enums.Visibility = {
-  PUBLIC: 'PUBLIC',
-  PRIVATE: 'PRIVATE'
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+exports.Provider = exports.$Enums.Provider = {
+  GITHUB: 'GITHUB',
+  DISCORD: 'DISCORD'
 };
 
 exports.Prisma.ModelName = {
-  User: 'User',
-  Post: 'Post',
-  Like: 'Like'
+  Account: 'Account',
+  Session: 'Session',
+  User: 'User'
 };
 
 /**
