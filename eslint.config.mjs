@@ -1,46 +1,34 @@
-import globals from 'globals'
-import pluginJs from '@eslint/js'
-import { config, configs } from 'typescript-eslint'
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
-import importPlugin from 'eslint-plugin-import'
-import pluginPromise from 'eslint-plugin-promise'
+// @ts-check
+import eslint from '@eslint/js';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-/** @type {import('eslint').Linter.Config[]} */
-
-export default config([
+export default tseslint.config(
   {
-    files: ['**/*.{js,mjs,cjs,ts}'],
-    extends: [
-      importPlugin.flatConfigs.recommended,
-      importPlugin.flatConfigs.typescript,
-    ],
+    ignores: ['eslint.config.mjs'],
   },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  eslintPluginPrettierRecommended,
   {
-    languageOptions: { globals: globals.node },
-  },
-  pluginJs.configs.recommended,
-  configs.strict,
-  configs.stylistic,
-  {
-    rules: {
-      quotes: ['error', 'single'],
-      'no-multiple-empty-lines': ['error', { max: 1 }],
-      'no-irregular-whitespace': 'error',
-      'no-multi-spaces': 'error',
-      'prettier/prettier': 'error',
-    },
-    settings: {
-      'import/resolver': {
-        node: {
-          extensions: ['.js', '.mjs', '.ts'],
-        },
-        typescript: {
-          project: './tsconfig.json',
-        },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+      sourceType: 'commonjs',
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
-    ignores: ['node_modules', 'build'],
   },
-  eslintPluginPrettierRecommended,
-  pluginPromise.configs['flat/recommended'],
-])
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-unsafe-argument': 'warn'
+    },
+  },
+);

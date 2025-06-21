@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -13,48 +14,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String
-  username   String
-  created_at DateTime @default(now())
+model Account {
+  user_id             String
+  type                String
+  provider            Provider
+  provider_account_id String
+  refresh_token       String?
+  access_token        String?
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String?
+  session_state       String?
 
-  Post Post[]
-  Like Like[]
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([provider, provider_account_id])
+  @@map("accounts")
+}
+
+model Session {
+  session_token String   @unique
+  user_id       String
+  expires       DateTime
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  username      String
+  created_at    DateTime  @default(now())
+
+  Account Account[]
+  Session Session[]
 
   @@map("users")
 }
 
-model Post {
-  id          String     @id @default(uuid())
-  title       String
-  description String
-  downloads   Int
-  visibility  Visibility @default(PUBLIC)
-
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String
-
-  Like Like[]
-
-  @@map("posts")
-}
-
-model Like {
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String
-
-  post    Post   @relation(fields: [post_id], references: [id])
-  post_id String
-
-  created_at DateTime @default(now())
-
-  @@id([user_id, post_id])
-  @@map("likes")
-}
-
-enum Visibility {
-  PUBLIC
-  PRIVATE
+enum Provider {
+  GITHUB
+  DISCORD
 }
