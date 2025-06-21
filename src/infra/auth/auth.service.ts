@@ -4,8 +4,6 @@ import { z } from 'zod';
 import { PrismaService } from '../database/prisma.service';
 import * as crypto from 'node:crypto';
 
-const COOKIE_EXPIRE_TIME_SECONDS = 60 * 10; // 10 minutes
-
 @Injectable()
 export class OAuthService {
   private readonly tokenSchema = z.object({
@@ -29,9 +27,8 @@ export class OAuthService {
 
   createAuthUrl() {
     const baseUrl = new URL('https://discord.com/oauth2/authorize');
-    const { codeVerifier, cookieOptions: cookieOptionsVerifies } =
-      this.createCodeVerifier();
-    const { state, cookieOptions: cookieOptionsState } = this.createState();
+    const { codeVerifier } = this.createCodeVerifier();
+    const { state } = this.createState();
 
     baseUrl.searchParams.set('client_id', env.DISCORD_CLIENT_ID);
     baseUrl.searchParams.set('redirect_uri', env.DISCORD_REDIRECT_URI);
@@ -43,11 +40,10 @@ export class OAuthService {
       'code_challenge',
       crypto.hash('sha256', codeVerifier, 'base64url'),
     );
+
     return {
       url: baseUrl.toString(),
       codeVerifier,
-      cookieOptionsState,
-      cookieOptionsVerifies,
       state,
     };
   }
@@ -177,13 +173,6 @@ export class OAuthService {
 
     return {
       codeVerifier,
-      cookieOptions: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' as const,
-        maxAge: Date.now() + COOKIE_EXPIRE_TIME_SECONDS * 1000,
-        path: '/',
-      },
     };
   }
 
@@ -192,13 +181,6 @@ export class OAuthService {
 
     return {
       state,
-      cookieOptions: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' as const,
-        maxAge: Date.now() + COOKIE_EXPIRE_TIME_SECONDS * 1000,
-        path: '/',
-      },
     };
   }
 }
