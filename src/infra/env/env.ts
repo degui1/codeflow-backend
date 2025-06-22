@@ -5,10 +5,18 @@ export const envSchema = z.object({
     .enum(['development', 'test', 'production'])
     .default('development'),
   PORT: z.coerce.number().default(3333),
+
+  // Database
   DATABASE_URL: z.string(),
+
+  // OAuth
   DISCORD_CLIENT_ID: z.string().min(1),
   DISCORD_CLIENT_SECRET: z.string().min(1),
   DISCORD_REDIRECT_URI: z.string().url(),
+
+  GITHUB_CLIENT_ID: z.string().min(1),
+  GITHUB_CLIENT_SECRET: z.string().min(1),
+  GITHUB_REDIRECT_URI: z.string().url(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -4,41 +4,40 @@ import { z } from 'zod';
 import { EnvService } from '../env/env.service';
 
 @Injectable()
-export class OAuthService {
+export class OAuthGitHubService {
+  private readonly AUTH_URL = 'https://github.com/login/oauth/authorize';
+  private readonly TOKEN_URL = 'https://github.com/login/oauth/access_token';
+  private readonly USER_URL = 'https://api.github.com/user';
+
   private readonly tokenSchema = z.object({
     access_token: z.string(),
     token_type: z.string(),
-    // expires_in: z.number(),
-    // scope: z.string(),
-    // refresh_token: z.string().optional(),
-    // error: z.string().optional(),
-    // error_description: z.string().optional(),
   });
 
   private readonly userSchema = z.object({
-    id: z.string(),
-    username: z.string(),
-    global_name: z.string().nullable(),
-    email: z.string().email(),
+    id: z.number(),
+    name: z.string().nullable(),
+    login: z.string(),
+    email: z.string().email().nullable(),
   });
 
   constructor(private readonly envService: EnvService) {}
 
   createAuthUrl() {
-    const baseUrl = new URL('https://discord.com/oauth2/authorize');
+    const baseUrl = new URL(this.AUTH_URL);
     const { codeVerifier } = this.createCodeVerifier();
     const { state } = this.createState();
 
     baseUrl.searchParams.set(
       'client_id',
-      this.envService.get('DISCORD_CLIENT_ID'),
+      this.envService.get('GITHUB_CLIENT_ID'),
     );
     baseUrl.searchParams.set(
       'redirect_uri',
-      this.envService.get('DISCORD_REDIRECT_URI'),
+      this.envService.get('GITHUB_REDIRECT_URI'),
     );
     baseUrl.searchParams.set('response_type', 'code');
-    baseUrl.searchParams.set('scope', 'identify email');
+    baseUrl.searchParams.set('scope', 'read:user');
     baseUrl.searchParams.set('state', state);
     baseUrl.searchParams.set('code_challenge_method', 'S256');
     baseUrl.searchParams.set(
@@ -70,7 +69,7 @@ export class OAuthService {
       codeVerifier,
     );
 
-    const user = await fetch('https://discord.com/api/users/@me', {
+    const user = await fetch(this.USER_URL, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
         'Content-Type': 'application/json',
@@ -78,7 +77,6 @@ export class OAuthService {
     })
       .then((res) => res.json())
       .then((rawData) => {
-        console.log('Raw user response:', rawData);
         const { data, success, error } = this.userSchema.safeParse(rawData);
 
         if (!success) {
@@ -88,8 +86,8 @@ export class OAuthService {
 
         return {
           id: data.id,
-          username: data.username,
-          globalName: data.global_name,
+          username: data.login,
+          globalName: data.name ?? data.login,
           email: data.email,
         };
       });
@@ -99,49 +97,10 @@ export class OAuthService {
       tokenType,
       user,
     };
-
-    // await this.prismaService.$transaction(async (prisma) => {
-    //   let userRecord = await prisma.user.findUnique({
-    //     where: { email: user.email },
-    //   });
-
-    //   if (!userRecord) {
-    //     const newUser = await prisma.user.create({
-    //       data: {
-    //         email: user.email,
-    //         username: user.username,
-    //         name: user.globalName ?? user.username,
-    //       },
-    //     });
-
-    //     userRecord = newUser;
-    //   }
-
-    //   await prisma.account.create({
-    //     data: {
-    //       user_id: userRecord.id,
-    //       provider: 'DISCORD',
-    //       provider_account_id: user.id,
-    //       access_token: accessToken,
-    //       token_type: tokenType,
-    //       type: 'oauth',
-
-    //       // refreshToken: data.refresh_token, // Uncomment if you want to store refresh tokens
-    //     },
-    //   });
-
-    //   await prisma.session.create({
-    //     data: {
-    //       user_id: userRecord.id,
-    //       expires: new Date(Date.now() + 60 * 60 * 1000), // Set session expiration to 1 hour
-    //       session_token: 'session-token', // Generate a session token if needed - encrypt or hash it
-    //     },
-    //   });
-    // });
   }
 
   private async fetchToken(code: string, codeVerifier: string) {
-    return fetch('https://discord.com/api/oauth2/token', {
+    return fetch(this.TOKEN_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -149,10 +108,10 @@ export class OAuthService {
       },
       body: new URLSearchParams({
         code,
-        redirect_uri: this.envService.get('DISCORD_REDIRECT_URI').toString(),
+        redirect_uri: this.envService.get('GITHUB_REDIRECT_URI').toString(),
         grant_type: 'authorization_code',
-        client_id: this.envService.get('DISCORD_CLIENT_ID'),
-        client_secret: this.envService.get('DISCORD_CLIENT_SECRET'),
+        client_id: this.envService.get('GITHUB_CLIENT_ID'),
+        client_secret: this.envService.get('GITHUB_CLIENT_SECRET'),
         code_verifier: codeVerifier,
       }),
     })
@@ -166,9 +125,6 @@ export class OAuthService {
         return {
           accessToken: data.access_token,
           tokenType: data.token_type,
-          // expiresIn: data.expires_in,
-          // scope: data.scope,
-          // refreshToken: data.refresh_token,
         };
       });
   }
