@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { env } from 'src/core/utils/env';
-import { z } from 'zod';
-import { PrismaService } from '../database/prisma.service';
 import * as crypto from 'node:crypto';
+import { Injectable } from '@nestjs/common';
+import { z } from 'zod';
+import { EnvService } from '../env/env.service';
 
 @Injectable()
 export class OAuthService {
@@ -23,15 +22,21 @@ export class OAuthService {
     email: z.string().email(),
   });
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly envService: EnvService) {}
 
   createAuthUrl() {
     const baseUrl = new URL('https://discord.com/oauth2/authorize');
     const { codeVerifier } = this.createCodeVerifier();
     const { state } = this.createState();
 
-    baseUrl.searchParams.set('client_id', env.DISCORD_CLIENT_ID);
-    baseUrl.searchParams.set('redirect_uri', env.DISCORD_REDIRECT_URI);
+    baseUrl.searchParams.set(
+      'client_id',
+      this.envService.get('DISCORD_CLIENT_ID'),
+    );
+    baseUrl.searchParams.set(
+      'redirect_uri',
+      this.envService.get('DISCORD_REDIRECT_URI'),
+    );
     baseUrl.searchParams.set('response_type', 'code');
     baseUrl.searchParams.set('scope', 'identify email');
     baseUrl.searchParams.set('state', state);
@@ -89,50 +94,50 @@ export class OAuthService {
         };
       });
 
-    await this.prismaService.$transaction(async (prisma) => {
-      let userRecord = await prisma.user.findUnique({
-        where: { email: user.email },
-      });
-
-      if (!userRecord) {
-        const newUser = await prisma.user.create({
-          data: {
-            email: user.email,
-            username: user.username,
-            name: user.globalName ?? user.username,
-          },
-        });
-
-        userRecord = newUser;
-      }
-
-      await prisma.account.create({
-        data: {
-          user_id: userRecord.id,
-          provider: 'DISCORD',
-          provider_account_id: user.id,
-          access_token: accessToken,
-          token_type: tokenType,
-          type: 'oauth',
-
-          // refreshToken: data.refresh_token, // Uncomment if you want to store refresh tokens
-        },
-      });
-
-      await prisma.session.create({
-        data: {
-          user_id: userRecord.id,
-          expires: new Date(Date.now() + 60 * 60 * 1000), // Set session expiration to 1 hour
-          session_token: 'session-token', // Generate a session token if needed - encrypt or hash it
-        },
-      });
-    });
-
     return {
-      id: user.id,
-      username: user.globalName ?? user.username,
-      email: user.email,
+      accessToken,
+      tokenType,
+      user,
     };
+
+    // await this.prismaService.$transaction(async (prisma) => {
+    //   let userRecord = await prisma.user.findUnique({
+    //     where: { email: user.email },
+    //   });
+
+    //   if (!userRecord) {
+    //     const newUser = await prisma.user.create({
+    //       data: {
+    //         email: user.email,
+    //         username: user.username,
+    //         name: user.globalName ?? user.username,
+    //       },
+    //     });
+
+    //     userRecord = newUser;
+    //   }
+
+    //   await prisma.account.create({
+    //     data: {
+    //       user_id: userRecord.id,
+    //       provider: 'DISCORD',
+    //       provider_account_id: user.id,
+    //       access_token: accessToken,
+    //       token_type: tokenType,
+    //       type: 'oauth',
+
+    //       // refreshToken: data.refresh_token, // Uncomment if you want to store refresh tokens
+    //     },
+    //   });
+
+    //   await prisma.session.create({
+    //     data: {
+    //       user_id: userRecord.id,
+    //       expires: new Date(Date.now() + 60 * 60 * 1000), // Set session expiration to 1 hour
+    //       session_token: 'session-token', // Generate a session token if needed - encrypt or hash it
+    //     },
+    //   });
+    // });
   }
 
   private async fetchToken(code: string, codeVerifier: string) {
@@ -144,10 +149,10 @@ export class OAuthService {
       },
       body: new URLSearchParams({
         code,
-        redirect_uri: env.DISCORD_REDIRECT_URI.toString(),
+        redirect_uri: this.envService.get('DISCORD_REDIRECT_URI').toString(),
         grant_type: 'authorization_code',
-        client_id: env.DISCORD_CLIENT_ID,
-        client_secret: env.DISCORD_CLIENT_SECRET,
+        client_id: this.envService.get('DISCORD_CLIENT_ID'),
+        client_secret: this.envService.get('DISCORD_CLIENT_SECRET'),
         code_verifier: codeVerifier,
       }),
     })
@@ -168,7 +173,7 @@ export class OAuthService {
       });
   }
 
-  createCodeVerifier() {
+  private createCodeVerifier() {
     const codeVerifier = crypto.randomBytes(64).toString('hex').normalize();
 
     return {
@@ -176,7 +181,7 @@ export class OAuthService {
     };
   }
 
-  createState() {
+  private createState() {
     const state = crypto.randomBytes(64).toString('hex').normalize();
 
     return {

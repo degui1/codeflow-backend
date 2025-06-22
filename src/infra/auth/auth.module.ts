@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from 'src/domain/users/users.module';
-import { OAuthService } from './auth.service';
-import { AuthController } from '../http/controllers/auth.controller';
-import { PrismaService } from '../database/prisma.service';
+
 import { CookieService } from './cookie.service';
+import { DatabaseModule } from '../database/database.module';
+import { OAuthService } from './auth.service';
+import { EnvModule } from '../env/env.module';
 
 @Module({
-  imports: [UsersModule],
-  controllers: [AuthController],
-  providers: [OAuthService, PrismaService, CookieService],
+  imports: [DatabaseModule, EnvModule],
+  providers: [CookieService, OAuthService],
+  exports: [CookieService, OAuthService],
 })
 export class AuthModule {}

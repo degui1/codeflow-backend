@@ -1,7 +1,7 @@
 import * as crypto from 'node:crypto';
 import { z } from 'zod';
 
-import { PrismaService } from 'src/infra/database/prisma.service';
+import { PrismaService } from 'src/infra/database/prisma/prisma.service';
 
 export abstract class OAuthService {
   abstract readonly OAUTH_CLIENT_ID: string;

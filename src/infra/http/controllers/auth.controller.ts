@@ -1,8 +1,10 @@
+import * as crypto from 'node:crypto';
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { OAuthService } from '../../auth/auth.service';
 import { CookieService } from 'src/infra/auth/cookie.service';
 import { Cookies } from '../decorators/cookies.decorator';
+import { AuthUseCase } from 'src/domain/use-cases/auth.use-case';
 
 const STATE_COOKIE_KEY = 'oauth_state';
 const CODE_VERIFIER_COOKIE_KEY = 'oauth_code_verifier';
@@ -11,6 +13,7 @@ const CODE_VERIFIER_COOKIE_KEY = 'oauth_code_verifier';
 export class AuthController {
   constructor(
     private readonly oauthService: OAuthService,
+    private readonly authUseCase: AuthUseCase,
     private readonly cookieService: CookieService,
   ) {}
 
@@ -41,14 +44,25 @@ export class AuthController {
     // passe um param para rota com a mensagem de erro
     // }
 
-    const OAuthUser = await this.oauthService.fetchUser(
+    const { accessToken, tokenType, user } = await this.oauthService.fetchUser(
       code,
       state,
       stateCookie,
       codeVerifier,
     );
 
-    console.log('User data:', OAuthUser);
+    const sessionToken = crypto.randomBytes(24).toString().normalize();
+
+    await this.authUseCase.execute({
+      accessToken,
+      tokenType,
+      sessionToken,
+      email: user.email,
+      name: user.globalName ?? user.username,
+      oauthUserId: user.id,
+      provider: 'DISCORD',
+      username: user.username,
+    });
 
     return res.send();
   }

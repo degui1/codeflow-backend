@@ -1,10 +1,10 @@
 import { execSync } from 'node:child_process';
 import { PrismaClient } from 'generated/prisma';
-import { env } from './env';
 import { randomUUID } from 'node:crypto';
 
 function generateDatabaseURL(schema: string) {
-  const url = new URL(env.DATABASE_URL);
+  // const url = new URL(env.DATABASE_URL);
+  const url = new URL('');
   url.searchParams.set('schema', schema);
 
   return url.toString();
