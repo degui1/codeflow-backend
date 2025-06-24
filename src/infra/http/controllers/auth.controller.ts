@@ -85,10 +85,7 @@ export class AuthController {
       username: user.username,
     });
 
-    res.cookie(
-      SESSION_COOKIE_KEY,
-      this.cookieService.getSessionCookieOptions(),
-    );
+    res.cookie(SESSION_COOKIE_KEY, sessionToken);
 
     return res.send();
   }
@@ -123,10 +120,7 @@ export class AuthController {
       username: user.username,
     });
 
-    res.cookie(
-      SESSION_COOKIE_KEY,
-      this.cookieService.getSessionCookieOptions(),
-    );
+    res.cookie(SESSION_COOKIE_KEY, sessionToken);
 
     return res.send();
   }
