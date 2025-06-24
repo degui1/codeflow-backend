@@ -116,7 +116,7 @@ export class AuthController {
       accessToken,
       tokenType,
       sessionToken,
-      email: user.email,
+      email: user.email!, // todo - remove "!"
       name: user.globalName ?? user.username,
       oauthUserId: user.id.toString(),
       provider: 'DISCORD',

@@ -8,6 +8,7 @@ export class OAuthGitHubService {
   private readonly AUTH_URL = 'https://github.com/login/oauth/authorize';
   private readonly TOKEN_URL = 'https://github.com/login/oauth/access_token';
   private readonly USER_URL = 'https://api.github.com/user';
+  private readonly EMAIL_URL = 'https://api.github.com/user/emails';
 
   private readonly tokenSchema = z.object({
     access_token: z.string(),
@@ -20,6 +21,14 @@ export class OAuthGitHubService {
     login: z.string(),
     email: z.string().email().nullable(),
   });
+
+  private readonly userEmailSchema = z.array(
+    z.object({
+      email: z.string().email(),
+      primary: z.boolean(),
+      verified: z.boolean(),
+    }),
+  );
 
   constructor(private readonly envService: EnvService) {}
 
@@ -37,7 +46,7 @@ export class OAuthGitHubService {
       this.envService.get('GITHUB_REDIRECT_URI'),
     );
     baseUrl.searchParams.set('response_type', 'code');
-    baseUrl.searchParams.set('scope', 'read:user');
+    baseUrl.searchParams.set('scope', 'read:user user:email');
     baseUrl.searchParams.set('state', state);
     baseUrl.searchParams.set('code_challenge_method', 'S256');
     baseUrl.searchParams.set(
@@ -91,6 +100,31 @@ export class OAuthGitHubService {
           email: data.email,
         };
       });
+
+    if (!user.email) {
+      await fetch(this.EMAIL_URL, {
+        headers: {
+          Authorization: `${tokenType} ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((res) => res.json())
+        .then((rawData) => {
+          const { data, success, error } =
+            this.userEmailSchema.safeParse(rawData);
+
+          if (!success) {
+            console.error('Invalid user response:', error);
+            throw new Error('Invalid user response');
+          }
+
+          const userEmail = data.find(({ primary }) => primary);
+
+          if (userEmail) {
+            user.email = userEmail.email;
+          }
+        });
+    }
 
     return {
       accessToken,
