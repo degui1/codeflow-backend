@@ -1,34 +1,24 @@
 import * as crypto from 'node:crypto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { z } from 'zod';
 import { EnvService } from '../env/env.service';
 
 @Injectable()
-export class OAuthGitHubService {
-  private readonly AUTH_URL = 'https://github.com/login/oauth/authorize';
-  private readonly TOKEN_URL = 'https://github.com/login/oauth/access_token';
-  private readonly USER_URL = 'https://api.github.com/user';
-  private readonly EMAIL_URL = 'https://api.github.com/user/emails';
-
+export class OAuthDiscordService {
+  private readonly AUTH_URL = 'https://discord.com/oauth2/authorize';
+  private readonly TOKEN_URL = 'https://discord.com/api/oauth2/token';
+  private readonly USER_URL = 'https://discord.com/api/users/@me';
   private readonly tokenSchema = z.object({
     access_token: z.string(),
     token_type: z.string(),
   });
 
   private readonly userSchema = z.object({
-    id: z.number(),
-    name: z.string().nullable(),
-    login: z.string(),
-    email: z.string().email().nullable(),
+    id: z.string(),
+    username: z.string(),
+    global_name: z.string().nullable(),
+    email: z.string().email(),
   });
-
-  private readonly userEmailSchema = z.array(
-    z.object({
-      email: z.string().email(),
-      primary: z.boolean(),
-      verified: z.boolean(),
-    }),
-  );
 
   constructor(private readonly envService: EnvService) {}
 
@@ -39,14 +29,14 @@ export class OAuthGitHubService {
 
     baseUrl.searchParams.set(
       'client_id',
-      this.envService.get('GITHUB_CLIENT_ID'),
+      this.envService.get('DISCORD_CLIENT_ID'),
     );
     baseUrl.searchParams.set(
       'redirect_uri',
-      this.envService.get('GITHUB_REDIRECT_URI'),
+      this.envService.get('DISCORD_REDIRECT_URI'),
     );
     baseUrl.searchParams.set('response_type', 'code');
-    baseUrl.searchParams.set('scope', 'read:user user:email');
+    baseUrl.searchParams.set('scope', 'identify email');
     baseUrl.searchParams.set('state', state);
     baseUrl.searchParams.set('code_challenge_method', 'S256');
     baseUrl.searchParams.set(
@@ -86,45 +76,21 @@ export class OAuthGitHubService {
     })
       .then((res) => res.json())
       .then((rawData) => {
-        const { data, success, error } = this.userSchema.safeParse(rawData);
+        const { data, success } = this.userSchema.safeParse(rawData);
 
         if (!success) {
-          console.error('Invalid user response:', error);
-          throw new Error('Invalid user response');
+          throw new UnauthorizedException(
+            'Invalid user response from OAuth provider',
+          );
         }
 
         return {
           id: data.id,
-          username: data.login,
-          globalName: data.name ?? data.login,
+          username: data.username,
+          globalName: data.global_name,
           email: data.email,
         };
       });
-
-    if (!user.email) {
-      await fetch(this.EMAIL_URL, {
-        headers: {
-          Authorization: `${tokenType} ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      })
-        .then((res) => res.json())
-        .then((rawData) => {
-          const { data, success, error } =
-            this.userEmailSchema.safeParse(rawData);
-
-          if (!success) {
-            console.error('Invalid user response:', error);
-            throw new Error('Invalid user response');
-          }
-
-          const userEmail = data.find(({ primary }) => primary);
-
-          if (userEmail) {
-            user.email = userEmail.email;
-          }
-        });
-    }
 
     return {
       accessToken,
@@ -142,19 +108,22 @@ export class OAuthGitHubService {
       },
       body: new URLSearchParams({
         code,
-        redirect_uri: this.envService.get('GITHUB_REDIRECT_URI').toString(),
+        redirect_uri: this.envService.get('DISCORD_REDIRECT_URI').toString(),
         grant_type: 'authorization_code',
-        client_id: this.envService.get('GITHUB_CLIENT_ID'),
-        client_secret: this.envService.get('GITHUB_CLIENT_SECRET'),
+        client_id: this.envService.get('DISCORD_CLIENT_ID'),
+        client_secret: this.envService.get('DISCORD_CLIENT_SECRET'),
         code_verifier: codeVerifier,
       }),
     })
       .then((res) => res.json())
       .then((rawData) => {
-        console.log('Raw token response:', rawData);
         const { data, success } = this.tokenSchema.safeParse(rawData);
 
-        if (!success) throw new Error('Invalid token response');
+        if (!success) {
+          throw new UnauthorizedException(
+            'Invalid user response from OAuth provider',
+          );
+        }
 
         return {
           accessToken: data.access_token,
