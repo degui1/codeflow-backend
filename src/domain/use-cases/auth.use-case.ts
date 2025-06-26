@@ -50,7 +50,7 @@ export class AuthUseCase {
       return;
     }
 
-    await this.sessionsRepository.registerUser({
+    await this.usersRepository.registerUser({
       accessToken,
       email,
       name,

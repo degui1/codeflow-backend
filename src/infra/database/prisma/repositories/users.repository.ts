@@ -29,25 +29,17 @@ export class PrismaUsersRepository implements UsersRepository {
     provider,
   }: RegisterUserInput) {
     await this.prismaService.$transaction(async (prisma) => {
-      let userRecord = await prisma.user.findUnique({
-        where: { email: email },
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          username,
+          name,
+        },
       });
-
-      if (!userRecord) {
-        const newUser = await prisma.user.create({
-          data: {
-            email,
-            username,
-            name,
-          },
-        });
-
-        userRecord = newUser;
-      }
 
       await prisma.account.create({
         data: {
-          user_id: userRecord.id,
+          user_id: newUser.id,
           provider: provider,
           provider_account_id: oauthUserId,
           access_token: accessToken,
@@ -58,7 +50,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
       await prisma.session.create({
         data: {
-          user_id: userRecord.id,
+          user_id: newUser.id,
           expires: sessionExpires,
           session_token: sessionToken,
         },
