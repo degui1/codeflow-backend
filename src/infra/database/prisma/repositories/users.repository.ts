@@ -11,6 +11,12 @@ import { PrismaService } from 'src/infra/database/prisma/prisma.service';
 export class PrismaUsersRepository implements UsersRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
+  findById(id: string): Promise<User | null> {
+    return this.prismaService.user.findUnique({
+      where: { id: id },
+    });
+  }
+
   findByEmail(email: string): Promise<User | null> {
     return this.prismaService.user.findUnique({
       where: { email: email },

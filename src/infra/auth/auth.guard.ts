@@ -10,6 +10,7 @@ import { Reflector } from '@nestjs/core';
 import { SessionsRepository } from 'src/domain/repositories/sessions.repository';
 
 import { IS_PUBLIC_KEY } from '../http/decorators/public.decorator';
+import { UsersRepository } from 'src/domain/repositories/users.repository';
 
 const SESSION_COOKIE_KEY = 'session_cookie';
 
@@ -18,6 +19,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly sessionsRepository: SessionsRepository,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -48,6 +50,14 @@ export class AuthGuard implements CanActivate {
     if (isExpired) {
       throw new UnauthorizedException();
     }
+
+    const user = await this.usersRepository.findById(session.user_id);
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    request['userId'] = user.id;
 
     return true;
   }
