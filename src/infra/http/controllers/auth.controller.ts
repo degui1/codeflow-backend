@@ -10,7 +10,7 @@ import {
 import { Response } from 'express';
 import { CookieService } from 'src/infra/auth/cookie.service';
 import { Cookies } from '../decorators/cookies.decorator';
-import { AuthUseCase } from 'src/domain/use-cases/auth.use-case';
+import { AuthUseCase } from 'src/domain/use-cases/auth/auth.use-case';
 import { OAuthDiscordService } from 'src/infra/auth/oauth-discord.service';
 import { OAuthGitHubService } from 'src/infra/auth/oauth-github.service';
 import { Public } from '../decorators/public.decorator';
@@ -79,8 +79,9 @@ export class AuthController {
       email: user.email!,
       name: user.globalName ?? user.username,
       oauthUserId: String(user.id),
-      provider: 'DISCORD',
+      provider: oauthService.PROVIDER,
       username: user.username,
+      image: user.image,
     });
 
     res.cookie(SESSION_COOKIE_KEY, sessionToken);

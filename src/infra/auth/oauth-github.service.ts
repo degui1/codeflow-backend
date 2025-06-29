@@ -9,6 +9,7 @@ export class OAuthGitHubService {
   private readonly TOKEN_URL = 'https://github.com/login/oauth/access_token';
   private readonly USER_URL = 'https://api.github.com/user';
   private readonly EMAIL_URL = 'https://api.github.com/user/emails';
+  readonly PROVIDER = 'GITHUB';
 
   private readonly tokenSchema = z.object({
     access_token: z.string(),
@@ -20,6 +21,7 @@ export class OAuthGitHubService {
     name: z.string().nullable(),
     login: z.string(),
     email: z.string().email().nullable(),
+    avatar_url: z.string().url(),
   });
 
   private readonly userEmailSchema = z.array(
@@ -99,6 +101,7 @@ export class OAuthGitHubService {
           username: data.login,
           globalName: data.name ?? data.login,
           email: data.email,
+          image: data.avatar_url,
         };
       });
 

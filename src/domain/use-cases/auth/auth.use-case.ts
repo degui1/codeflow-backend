@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Provider } from 'generated/prisma';
 
-import { SessionsRepository } from '../repositories/sessions.repository';
-import { UsersRepository } from '../repositories/users.repository';
+import { SessionsRepository } from '../../repositories/sessions.repository';
+import { UsersRepository } from '../../repositories/users.repository';
 
 interface AuthUseCaseRequest {
   email: string;
@@ -13,6 +13,7 @@ interface AuthUseCaseRequest {
   oauthUserId: string;
   tokenType: string;
   username: string;
+  image: string;
 }
 
 const SESSION_EXPIRE_IN_SECONDS = 60 * 60 * 24 * 7;
@@ -33,6 +34,7 @@ export class AuthUseCase {
     provider,
     tokenType,
     username,
+    image,
   }: AuthUseCaseRequest): Promise<void> {
     const user = await this.usersRepository.findByEmail(email);
 
@@ -60,6 +62,7 @@ export class AuthUseCase {
       sessionToken,
       tokenType,
       username,
+      image,
     });
   }
 }

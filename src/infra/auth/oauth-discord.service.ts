@@ -8,6 +8,8 @@ export class OAuthDiscordService {
   private readonly AUTH_URL = 'https://discord.com/oauth2/authorize';
   private readonly TOKEN_URL = 'https://discord.com/api/oauth2/token';
   private readonly USER_URL = 'https://discord.com/api/users/@me';
+  readonly PROVIDER = 'DISCORD';
+
   private readonly tokenSchema = z.object({
     access_token: z.string(),
     token_type: z.string(),
@@ -18,6 +20,7 @@ export class OAuthDiscordService {
     username: z.string(),
     global_name: z.string().nullable(),
     email: z.string().email(),
+    avatar: z.string(),
   });
 
   constructor(private readonly envService: EnvService) {}
@@ -89,6 +92,7 @@ export class OAuthDiscordService {
           username: data.username,
           globalName: data.global_name,
           email: data.email,
+          image: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png`,
         };
       });
 

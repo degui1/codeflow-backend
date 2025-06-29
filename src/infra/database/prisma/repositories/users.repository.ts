@@ -33,6 +33,7 @@ export class PrismaUsersRepository implements UsersRepository {
     sessionExpires,
     sessionToken,
     provider,
+    image,
   }: RegisterUserInput) {
     await this.prismaService.$transaction(async (prisma) => {
       const newUser = await prisma.user.create({
@@ -40,6 +41,7 @@ export class PrismaUsersRepository implements UsersRepository {
           email,
           username,
           name,
+          image,
         },
       });
 
@@ -62,5 +64,9 @@ export class PrismaUsersRepository implements UsersRepository {
         },
       });
     });
+  }
+
+  async delete(userId: string) {
+    await this.prismaService.user.delete({ where: { id: userId } });
   }
 }

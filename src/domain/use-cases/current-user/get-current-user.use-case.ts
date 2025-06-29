@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { UsersRepository } from '../repositories/users.repository';
+import { UsersRepository } from '../../repositories/users.repository';
 
 export interface GetUserUseCaseRequest {
   userId: string;

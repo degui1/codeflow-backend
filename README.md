@@ -6,19 +6,19 @@
 
 ## RFs (Requisitos funcionais)
 
-- [ ] Deve ser possível se cadastrar;
-- [ ] Deve ser possível se autenticar;
+- [ x ] Deve ser possível se cadastrar;
+- [ x ] Deve ser possível se autenticar;
 - [ ] Deve ser possível atualizar os dados da conta cadastrada;
-- [ ] Deve ser possível excluir a conta do usuário;
+- [ x ] Deve ser possível excluir a conta do usuário;
 - [ ] Deve ser possível criar um post para a comunidade;
 - [ ] Deve ser possível criar um Flow;
-- [ ] Deve ser possível consultar os posts já criados pela comunidade;
-- [ ] Deve ser possível obter o perfil de um usuário logado;
-- [ ] Deve ser possível que o usuário obtenha seu histórico de publicações;
+- [ x ] Deve ser possível consultar os posts já criados pela comunidade;
+- [ x ] Deve ser possível obter o perfil de um usuário logado;
+- [ x ] Deve ser possível que o usuário obtenha seu histórico de publicações;
 - [ ] Deve ser possível que o usuário busque por flows;
 - [ ] Deve ser possível que o usuário realize o download de uma flow;
 - [ ] Deve ser possível escolher a visibilidade do post;
-- [ ] Deve ser possível que o usuário acesse o perfil de outros usuários;
+- [ x ] Deve ser possível que o usuário acesse o perfil de outros usuários;
 - [ ] Deve ser possível que o usuário adicione uma descrição a um post;
 - [ ] Deve ser possível comentar posts;
 - [ ] Deve ser possível curtir posts;
@@ -27,8 +27,8 @@
 
 ## RNs (Regras de negócio)
 
-- [ ] O usuário não deve poder se cadastrar com um e-mail duplicado;
-- [ ] O usuário não deve poder se cadastrar com a mesma conta usada para oauth;
+- [ x ] O usuário não deve poder se cadastrar com um e-mail duplicado;
+- [ x ] O usuário não deve poder se cadastrar com a mesma conta usada para oauth;
 - [ ] O usuário não pode acessar um flow privado, caso não seja o do próprio usuário;
 - [ ] Apenas o próprio usuário pode alterar a visibilidade do post;
 - [ ] O usuário pode criar um flow sem estar logado;
@@ -45,9 +45,9 @@
 
 ## RNFs (Requisitos não funcionais)
 
-- [ ] Os dados da aplicação precisam estar persistidos em um banco PostgreSQL;
+- [ x ] Os dados da aplicação precisam estar persistidos em um banco PostgreSQL;
 - [ ] Todas as listas de dados precisam estar paginadas com 20 itens por página;
-- [ ] O usuário deve ser identificado por um JWT (JSON Web Token) usando o algoritmo RS256;
+- [ x ] O usuário deve ser identificado via cookies;
 - [ ] A descrição dos posts deve ser feita em markdown;
 - [ ] Os comentários devem suportar markdown;
 - [ ] Todos os componentes precisam ser responsivos;
