@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/prisma';
+import { Transaction } from 'src/domain/repositories/auth.repository';
 import { SessionsRepository } from 'src/domain/repositories/sessions.repository';
 import { PrismaService } from 'src/infra/database/prisma/prisma.service';
 
@@ -13,20 +14,27 @@ export class PrismaSessionsRepository implements SessionsRepository {
     });
   }
 
-  async createUserSession({
-    session_token,
-    expires,
-    user_id,
-  }: Prisma.SessionUncheckedCreateInput) {
-    const session = await this.prismaService.session.create({
+  async createUserSession(
+    { session_token, expires, user_id }: Prisma.SessionUncheckedCreateInput,
+    tx: Transaction,
+  ) {
+    if (tx) {
+      return tx.session.create({
+        data: {
+          session_token,
+          expires,
+          user_id,
+        },
+      });
+    }
+
+    return this.prismaService.session.create({
       data: {
         session_token,
         expires,
         user_id,
       },
     });
-
-    return session;
   }
 
   async updateSessionExpiration(sessionToken: string, newExpires: Date) {

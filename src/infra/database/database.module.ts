@@ -7,6 +7,10 @@ import { UsersRepository } from 'src/domain/repositories/users.repository';
 import { PrismaUsersRepository } from './prisma/repositories/users.repository';
 import { PostsRepository } from 'src/domain/repositories/posts.repository';
 import { PrismaPostsRepository } from './prisma/repositories/posts.repository';
+import { AccountsRepository } from 'src/domain/repositories/accounts.repository';
+import { PrismaAccountsRepository } from './prisma/repositories/accounts.repository';
+import { AuthRepository } from 'src/domain/repositories/auth.repository';
+import { PrismaAuthRepository } from './prisma/repositories/auth.repository';
 
 @Module({
   providers: [
@@ -23,12 +27,22 @@ import { PrismaPostsRepository } from './prisma/repositories/posts.repository';
       provide: PostsRepository,
       useClass: PrismaPostsRepository,
     },
+    {
+      provide: AccountsRepository,
+      useClass: PrismaAccountsRepository,
+    },
+    {
+      provide: AuthRepository,
+      useClass: PrismaAuthRepository,
+    },
   ],
   exports: [
     PrismaService,
     SessionsRepository,
     UsersRepository,
     PostsRepository,
+    AccountsRepository,
+    AuthRepository,
   ],
 })
 export class DatabaseModule {}
