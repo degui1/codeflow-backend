@@ -1,21 +1,12 @@
-import { Provider, User } from 'generated/prisma';
-
-export type RegisterUserInput = {
-  email: string;
-  name: string;
-  username: string;
-  oauthUserId: string;
-  accessToken: string;
-  tokenType: string;
-  sessionToken: string;
-  sessionExpires: Date;
-  image: string;
-  provider: keyof typeof Provider;
-};
+import { Prisma, User } from 'generated/prisma';
+import { Transaction } from './auth.repository';
 
 export abstract class UsersRepository {
   abstract findById(id: string): Promise<User | null>;
   abstract findByEmail(email: string): Promise<User | null>;
-  abstract registerUser(data: RegisterUserInput): Promise<void>;
+  abstract create(
+    data: Prisma.UserUncheckedCreateInput,
+    tx?: Transaction,
+  ): Promise<User>;
   abstract delete(userId: string): Promise<void>;
 }
