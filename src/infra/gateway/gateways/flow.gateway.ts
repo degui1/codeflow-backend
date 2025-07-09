@@ -3,7 +3,6 @@ import {
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
-  WsException,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { z } from 'zod';
@@ -23,17 +22,14 @@ export class FlowGateway {
 
   @SubscribeMessage('get-flow-schema')
   async getFlowSchema(
-    // @MessageBody(new ZodValidationPipe(getFlowSchemaBodySchema))
-    // body: GetFlowSchemaBodySchema,
+    @MessageBody(new ZodValidationPipe(getFlowSchemaBodySchema))
+    body: GetFlowSchemaBodySchema,
     @ConnectedSocket() client: Socket,
   ) {
-    try {
-      const { schema } = await this.getFlowSchemaUseCase.execute({
-        flowSchemaId: '',
-      });
-      return client.emit('get-flow-schema', schema);
-    } catch (error) {
-      throw new WsException(error);
-    }
+    const { schema } = await this.getFlowSchemaUseCase.execute({
+      flowSchemaId: body.flowSchemaId,
+    });
+
+    return client.emit('get-flow-schema', schema);
   }
 }

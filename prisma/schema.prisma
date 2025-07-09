@@ -119,7 +119,6 @@ model Flow {
 model FlowSchema {
   id          String @id @default(uuid())
   description String
-  blob        Bytes
   file_name   String
 
   Flow Flow[]

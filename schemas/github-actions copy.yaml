@@ -1,0 +1,58 @@
+name: GitHub Actions
+
+groups:
+  on:
+    label: Disparo
+    description: Define quando a action será executada.
+    fields:
+      on:
+        type: list
+        itemType: string
+        required: true
+        help: Lista de eventos que irão disparar a action
+      branches:
+        type: list
+        itemType: string
+        required: true
+        help: Lista de branches onde o push irá disparar a action.
+
+  jobs:
+    label: Jobs
+    description: Define os jobs da action.
+    repeatable: true
+    fields:
+      job:
+        type: object
+        nameableKey: true
+        fields:
+          name:
+            type: string
+            required: true
+            help: Nome do job.
+          runs-on:
+            type: string
+            defaultValues: [example1, example2]
+            required: true
+            help: Define o sistema operacional usado.
+          steps:
+            type: list
+            required: true
+            help: Lista de etapas executadas no job.
+            itemType: object
+            fields:
+              name:
+                type: string
+                help: Nome da etapa.
+              run:
+                type: string
+                help: Comando a ser executado.
+
+rules:
+  - description: "Deve haver pelo menos um job definido"
+    condition: "groups.jobs.fields.length > 0"
+    error: "É necessário definir ao menos um job"
+    target: 'jobs'
+
+  - description: "Se on.push existir, deve conter ao menos 1 branch"
+    condition: "groups.on.push.branches.length > 0"
+    error: "O campo branches dentro de on.push é obrigatório"

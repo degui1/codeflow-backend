@@ -1,10 +1,10 @@
-import {
-  BadGatewayException,
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { YamlSchema, yamlSchema } from 'src/core/schemas/flow.schema';
 import { FlowSchemasRepository } from 'src/domain/repositories/flow-schemas.repository';
+import { parse, stringify } from 'yaml';
 
 export interface GetFlowSchemaUseCaseRequest {
   flowSchemaId: string;
@@ -24,19 +24,25 @@ export class GetFlowSchemaUseCase {
     const flowSchema = await this.flowSchemasRepository.findById(flowSchemaId);
 
     if (!flowSchema) {
-      throw new BadRequestException('Flow schema does not exist');
+      throw new WsException('Flow schema does not exist');
     }
 
     try {
-      const fileContent = Buffer.from(flowSchema.blob).toString('utf-8');
-
-      const schema = yamlSchema.parse(fileContent);
-
+      const filePath = resolve('./schemas/', flowSchema.file_name);
+      const fileContent = readFileSync(filePath, 'utf-8');
+      const fileContent2 = readFileSync(
+        'C:\\projects\\TCC\\codeflow-backend\\schemas\\github-actions copy.yaml',
+        'utf-8',
+      );
+      const yaml = parse(fileContent2);
+      // const schema = yamlSchema.parse(parse(fileContent));
+      const schema = yamlSchema.parse(parse(fileContent));
+      const string = stringify(yaml);
       return {
         schema,
       };
     } catch {
-      throw new BadGatewayException('Unable to load flow schema');
+      throw new WsException('Unable to load flow schema');
     }
   }
 }
