@@ -1,0 +1,10 @@
+meta:
+  group:
+    requiredFields: [label, fields]
+  field:
+    types: [string, number, boolean, list, object]
+    propsByType:
+      list:
+        required: [itemType]
+      object:
+        required: [fields]
