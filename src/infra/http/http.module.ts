@@ -4,6 +4,7 @@ import { AuthUseCase } from 'src/domain/use-cases/auth/auth.use-case';
 import { AuthModule } from '../auth/auth.module';
 import { AuthController } from './controllers/auth.controller';
 import { UserController } from './controllers/user.controller';
+import { EnvModule } from '../env/env.module';
 import { GetUserUseCase } from 'src/domain/use-cases/current-user/get-current-user.use-case';
 import { DeleteUserUseCase } from 'src/domain/use-cases/current-user/delete-current-user.use-case';
 import { MeController } from './controllers/me.controller';
@@ -13,7 +14,7 @@ import { GetUserPostHistoryUseCase } from 'src/domain/use-cases/current-user/get
 import { GetCommunityPostsUseCase } from 'src/domain/use-cases/community/get-community-posts.use-case';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [DatabaseModule, AuthModule, EnvModule],
   controllers: [
     AuthController,
     UserController,
