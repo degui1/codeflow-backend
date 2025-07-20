@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { YamlSchema, yamlSchema } from 'src/core/schemas/flow.schema';
 import { FlowSchemasRepository } from 'src/domain/repositories/flow-schemas.repository';
-import { parse, stringify } from 'yaml';
+import { YamlService } from 'src/infra/yaml/yaml-js/yaml.service';
 
 export interface GetFlowSchemaUseCaseRequest {
   flowSchemaId: string;
@@ -16,7 +17,10 @@ export interface GetFlowSchemaUseCaseResponse {
 
 @Injectable()
 export class GetFlowSchemaUseCase {
-  constructor(private readonly flowSchemasRepository: FlowSchemasRepository) {}
+  constructor(
+    private readonly flowSchemasRepository: FlowSchemasRepository,
+    private readonly yamlService: YamlService,
+  ) {}
 
   async execute({
     flowSchemaId,
@@ -30,14 +34,10 @@ export class GetFlowSchemaUseCase {
     try {
       const filePath = resolve('./schemas/', flowSchema.file_name);
       const fileContent = readFileSync(filePath, 'utf-8');
-      const fileContent2 = readFileSync(
-        'C:\\projects\\TCC\\codeflow-backend\\schemas\\github-actions copy.yaml',
-        'utf-8',
-      );
-      const yaml = parse(fileContent2);
-      // const schema = yamlSchema.parse(parse(fileContent));
-      const schema = yamlSchema.parse(parse(fileContent));
-      const string = stringify(yaml);
+      const yamlObject = this.yamlService.parseYaml(fileContent);
+
+      const schema = yamlSchema.parse(yamlObject);
+
       return {
         schema,
       };
