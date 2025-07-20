@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { EnvModule } from './env/env.module';
 import { HttpModule } from './http/http.module';
+import { GatewayModule } from './gateway/gateway.module';
 import { envSchema } from './env/env';
 
 @Module({
@@ -13,6 +14,7 @@ import { envSchema } from './env/env';
     }),
     EnvModule,
     HttpModule,
+    GatewayModule,
   ],
 })
 export class AppModule {}

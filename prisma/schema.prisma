@@ -107,16 +107,21 @@ model Like {
 }
 
 model Flow {
-  id         String   @id @default(uuid())
-  blob       Bytes
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id           String   @id @default(uuid())
+  blob         Bytes
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  flowSchemaId String
+
+  flowSchema FlowSchema @relation(fields: [flowSchemaId], references: [id])
 }
 
 model FlowSchema {
   id          String @id @default(uuid())
   description String
   file_name   String
+
+  Flow Flow[]
 }
 
 enum Visibility {
