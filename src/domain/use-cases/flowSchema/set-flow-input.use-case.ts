@@ -1,35 +1,107 @@
-// import { Injectable } from '@nestjs/common';
-// import { InputSchema } from 'src/core/schemas/flow-input.schema';
-// import { YamlSchema } from 'src/core/schemas/flow.schema';
-// import { FlowSchemasRepository } from 'src/domain/repositories/flow-schemas.repository';
+import { Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
-// export interface SetFlowInputUseCaseRequest {
-//   inputs: InputSchema[];
-//   schema: YamlSchema;
-// }
+import { FlowInput } from 'src/core/schemas/data.schema';
+import { Rule, YamlSchema } from 'src/core/schemas/flow.schema';
+import { LanguageExpressionService } from 'src/infra/language-expression/jsonata/language-expression.service';
 
-// // export interface SetFlowInputUseCaseResponse {}
+interface SetFlowInputUseCaseRequest {
+  inputs: FlowInput;
+  schema: YamlSchema;
+  path: string;
+  value: unknown;
+}
 
-// @Injectable()
-// export class SetFlowInputUseCase {
-//   constructor(private readonly flowSchemasRepository: FlowSchemasRepository) {}
+interface SetFlowInputUseCaseResponse {
+  inputs: FlowInput;
+}
 
-//   async execute({ inputs, schema }: SetFlowInputUseCaseRequest) {
-//     let data: unknown;
-//     for (const update of inputs) {
-//       const { groupKey, fieldKey, value } = update;
-//       if ('index' in update) {
-//         // grupo repeatable
-//         if (!data.groups[groupKey]) data.groups[groupKey] = [];
-//         if (!data.groups[groupKey][update.index])
-//           data.groups[groupKey][update.index] = {};
-//         data.groups[groupKey][update.index][fieldKey] = value;
-//       } else {
-//         // grupo non‑repeatable
-//         if (!data.groups[groupKey]) data.groups[groupKey] = {};
-//         data.groups[groupKey][fieldKey] = value;
-//       }
-//     }
-//     return data;
-//   }
-// }
+@Injectable()
+export class SetFlowInputUseCase {
+  constructor(private readonly languageExpression: LanguageExpressionService) {}
+
+  private setValueAtPath(
+    obj: FlowInput | undefined,
+    path: string,
+    value: unknown,
+  ) {
+    const parts = path.split('.').filter(Boolean);
+    let curr = obj || {};
+
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+      if (!(part in curr)) curr[part] = {};
+
+      curr = curr[part] as Record<string, unknown>;
+    }
+    curr[parts[parts.length - 1]] = value;
+  }
+
+  async execute({
+    inputs,
+    path,
+    schema,
+    value,
+  }: SetFlowInputUseCaseRequest): Promise<SetFlowInputUseCaseResponse> {
+    const expression = await this.languageExpression.evaluateExpression(
+      path,
+      schema,
+    );
+
+    if (!expression) {
+      throw new WsException('Invalid field path');
+    }
+
+    if (typeof expression === 'object' && 'rules' in expression) {
+      const rules = expression.rules as Record<string, Rule>;
+
+      const rulesOperation: {
+        result: () => Promise<unknown>;
+        description: string;
+        error: string;
+      }[] = [];
+
+      Object.entries(rules).forEach(([, rule]) => {
+        rulesOperation.push({
+          result: async () =>
+            await this.languageExpression.evaluateExpression(
+              rule.condition,
+              schema,
+            ),
+          description: rule.description,
+          error: rule.error,
+        });
+      });
+
+      const validations = await Promise.all(
+        rulesOperation.map(async ({ result, description, error }) => {
+          const bool = await result();
+
+          return {
+            bool,
+            description,
+            error,
+          };
+        }),
+      );
+
+      const hasInvalidInput = validations.find(({ bool }) => bool !== true);
+
+      if (hasInvalidInput) {
+        throw new WsException({
+          message: 'The following rule must be followed',
+          error: hasInvalidInput.error,
+          description: hasInvalidInput.description,
+        });
+      }
+    }
+
+    console.log(expression);
+
+    this.setValueAtPath(inputs, path, value);
+
+    return {
+      inputs,
+    };
+  }
+}

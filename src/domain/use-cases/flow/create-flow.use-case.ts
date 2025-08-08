@@ -1,22 +1,37 @@
-// import { Injectable } from '@nestjs/common';
-// import { YamlService } from 'src/infra/yaml/yaml-js/yaml.service';
+import { Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
+import { FlowInput } from 'src/core/schemas/data.schema';
 
-// @Injectable()
-// export class CreateFlowUseCase {
-//   constructor(private readonly yamlService: YamlService) {}
+import { YamlService } from 'src/infra/yaml/yaml-js/yaml.service';
 
-//   async execute(request: ValidadeFlowUseCaseRequest): Promise<void> {
-//     const { schema, input } = request;
+interface CreateFlowUseCaseRequest {
+  inputs?: FlowInput;
+}
 
-//     // Validar regras do schema
-//     await this.validateSchemaRules(schema, input);
+interface CreateFlowUseCaseResponse {
+  flow: string;
+}
+@Injectable()
+export class CreateFlowUseCase {
+  constructor(private readonly yaml: YamlService) {}
 
-//     // Coletar todos os campos do input
-//     const allFields = this.getAllFieldsFromData(input);
+  private flatFields(inputs: FlowInput) {
+    const fields = Object.values(inputs.groups).flatMap(({ fields }) => fields);
 
-//     // Validar regras de cada campo
-//     for (const field of allFields) {
-//       await this.validateFieldRules(field, input);
-//     }
-//   }
-// }
+    const flattedFields = fields.reduce((acc, group) => {
+      return Object.assign(acc, group);
+    }, {});
+
+    return flattedFields;
+  }
+
+  execute({ inputs }: CreateFlowUseCaseRequest): CreateFlowUseCaseResponse {
+    if (!inputs) {
+      throw new WsException('Inputs not provided');
+    }
+
+    const flow = this.yaml.stringifyYaml(this.flatFields(inputs));
+
+    return { flow };
+  }
+}
