@@ -5,17 +5,19 @@ import {
   WebSocketGateway,
   WsException,
 } from '@nestjs/websockets';
+import { promises } from 'node:fs';
 import { DefaultEventsMap, Socket } from 'socket.io';
-
 import { z } from 'zod';
 
 import { FlowInput } from 'src/core/schemas/data.schema';
 import { YamlSchema } from 'src/core/schemas/flow.schema';
-import { GetFlowSchemaUseCase } from 'src/domain/use-cases/flowSchema/get-flow-schema.use-case';
+import { GetFlowSchemaUseCase } from 'src/domain/use-cases/flow/get-flow-schema.use-case';
 import { CreateFlowUseCase } from 'src/domain/use-cases/flow/create-flow.use-case';
+import { CreateFlowFileUseCase } from 'src/domain/use-cases/flow/create-flow-file.use-case';
+import { SetFlowInputUseCase } from 'src/domain/use-cases/flow/set-flow-input.use-case';
+import { EnvService } from 'src/infra/env/env.service';
 
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
-import { SetFlowInputUseCase } from 'src/domain/use-cases/flowSchema/set-flow-input.use-case';
 
 const getFlowSchemaBodySchema = z.object({
   flowSchemaId: z.string().uuid(),
@@ -34,6 +36,7 @@ export type SetFlowFieldsList = z.infer<typeof setFlowFieldsListSchema>;
 type SocketData = {
   schema: YamlSchema;
   inputs?: FlowInput;
+  flow?: string;
 };
 
 type FlowSocket = Socket<
@@ -48,9 +51,11 @@ type GetFlowSchemaBodySchema = z.infer<typeof getFlowSchemaBodySchema>;
 @WebSocketGateway()
 export class FlowGateway {
   constructor(
+    private readonly envService: EnvService,
     private readonly createFlowUseCase: CreateFlowUseCase,
     private readonly getFlowSchemaUseCase: GetFlowSchemaUseCase,
     private readonly setFlowInput: SetFlowInputUseCase,
+    private readonly createFlowFile: CreateFlowFileUseCase,
   ) {}
 
   @SubscribeMessage('get-flow-schema')
@@ -98,9 +103,21 @@ export class FlowGateway {
       inputs: client.data.inputs,
     });
 
+    client.data.flow = flow;
+
     return client.emit('create-flow', { flow });
   }
 
   @SubscribeMessage('download-flow')
-  downloadFlow(@ConnectedSocket() client: FlowSocket) {}
+  async downloadFlow(@ConnectedSocket() client: FlowSocket) {
+    if (!client.data.flow) {
+      throw new WsException('The flow was not previously created');
+    }
+
+    const { path } = this.createFlowFile.execute({ flow: client.data.flow });
+
+    const fileBuffer = await promises.readFile(path);
+
+    return client.emit('download-flow', fileBuffer);
+  }
 }
