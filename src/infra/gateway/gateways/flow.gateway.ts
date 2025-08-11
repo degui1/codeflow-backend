@@ -98,9 +98,10 @@ export class FlowGateway {
   }
 
   @SubscribeMessage('create-flow')
-  createFlow(@ConnectedSocket() client: FlowSocket) {
-    const { flow } = this.createFlowUseCase.execute({
+  async createFlow(@ConnectedSocket() client: FlowSocket) {
+    const { flow } = await this.createFlowUseCase.execute({
       inputs: client.data.inputs,
+      rules: client.data.schema.rules,
     });
 
     client.data.flow = flow;

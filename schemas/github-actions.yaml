@@ -10,24 +10,14 @@ name: GitHub Actions
 
 groups:
   ongroup:
-    label: Disparo
-    description: Define quando a action será executada.
-    rules:
-      required-event:
-        description: Obriga o uso de ao menos um field no grupo ON
-        condition: $count(groups.on-group.fields.on) > 0
-        error: Ao menos um evento é necessário para inicializar o ON
+    label: ON
+    description: Define o evento que disparará a action.
     fields:
       on:
         type: list
         itemType: string
         required: true
         help: Lista de eventos que irão disparar a action
-        rules:
-          push-is-required:
-            description: Obriga o uso de ao menos um field no grupo ON
-            condition: $count(groups.on-group.fields.on) > 0
-            error: Ao menos um evento é necessário para inicializar o ON
       branches:
         type: list
         itemType: string
@@ -71,7 +61,11 @@ groups:
                     repeatable: true
 
 rules:
-  required-event:
-    description: Obriga o uso de ao menos um field no grupo ON
-    condition: $count(groups.on.fields) > 0
-    error: Ao menos um evento é necessário para inicializar o ON
+  required-jobs:
+    description: Ao menos um job é necessário
+    condition: $count(groups.jobs-group.fields.jobs) > 0
+    error: Ao menos um job é necessário
+  required-events:
+    description: Obriga o preenchimento do field 'ON'.
+    condition: $count(groups.ongroup.fields.on) > 0
+    error: Ao menos um evento é necessário para inicializar a action. 'ON' está vazio
