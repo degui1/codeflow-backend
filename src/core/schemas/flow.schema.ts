@@ -30,7 +30,7 @@ export type Field = {
   fields?: Record<string, Field>;
 };
 
-const FieldSchema: z.ZodType<Field> = z.lazy(() =>
+export const FieldSchema: z.ZodType<Field> = z.lazy(() =>
   z.object({
     type: FieldTypeEnum,
     // label: z.string().optional(),

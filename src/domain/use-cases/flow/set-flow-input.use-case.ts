@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 
 import { FlowInput } from 'src/core/schemas/data.schema';
-import { YamlSchema } from 'src/core/schemas/flow.schema';
+import { Field, FieldSchema, YamlSchema } from 'src/core/schemas/flow.schema';
 import { LanguageExpressionService } from 'src/infra/language-expression/jsonata/language-expression.service';
 
 interface SetFlowInputUseCaseRequest {
@@ -19,6 +19,65 @@ interface SetFlowInputUseCaseResponse {
 @Injectable()
 export class SetFlowInputUseCase {
   constructor(private readonly languageExpression: LanguageExpressionService) {}
+
+  private validateFieldValue(field: Field, value: unknown): void {
+    const { type, itemType, fields } = field;
+
+    if (type === 'string' && typeof value !== 'string') {
+      throw new WsException(
+        `Expected type ${type}, but received ${typeof value}`,
+      );
+    }
+
+    if (type === 'number' && typeof value !== 'number') {
+      throw new WsException(
+        `Expected type ${type}, but received ${typeof value}`,
+      );
+    }
+
+    if (type === 'boolean' && typeof value !== 'boolean') {
+      throw new WsException(
+        `Expected type ${type}, but received ${typeof value}`,
+      );
+    }
+
+    if (type === 'list') {
+      if (!Array.isArray(value)) {
+        throw new WsException(
+          `Expected type ${type}, but received ${typeof value}`,
+        );
+      }
+
+      if (itemType === 'object' && fields) {
+        for (const item of value) {
+          this.validateFieldValue({ type: 'object', fields }, item);
+        }
+      } else if (itemType) {
+        for (const item of value) {
+          this.validateFieldValue({ type: itemType }, item);
+        }
+      }
+    }
+
+    if (type === 'object') {
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        throw new WsException(
+          `Expected type ${type}, but received ${typeof value}`,
+        );
+      }
+
+      if (fields) {
+        for (const key in fields) {
+          if (fields[key].required && !(key in value)) {
+            throw new WsException(`Missing required field: ${key}`);
+          }
+          if (key in value) {
+            this.validateFieldValue(fields[key], value[key]);
+          }
+        }
+      }
+    }
+  }
 
   private setValueAtPath(
     obj: FlowInput | undefined,
@@ -48,9 +107,13 @@ export class SetFlowInputUseCase {
       schema,
     );
 
-    if (!expression) {
+    if (!expression || typeof expression !== 'object') {
       throw new WsException('Invalid field path');
     }
+
+    const field = FieldSchema.parse(expression);
+
+    this.validateFieldValue(field, value);
 
     // if (typeof expression === 'object' && 'rules' in expression) {
     //   const rules = expression.rules as Record<string, Rule>;

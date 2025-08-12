@@ -15,7 +15,6 @@ import { GetFlowSchemaUseCase } from 'src/domain/use-cases/flow/get-flow-schema.
 import { CreateFlowUseCase } from 'src/domain/use-cases/flow/create-flow.use-case';
 import { CreateFlowFileUseCase } from 'src/domain/use-cases/flow/create-flow-file.use-case';
 import { SetFlowInputUseCase } from 'src/domain/use-cases/flow/set-flow-input.use-case';
-import { EnvService } from 'src/infra/env/env.service';
 
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
 
@@ -51,7 +50,6 @@ type GetFlowSchemaBodySchema = z.infer<typeof getFlowSchemaBodySchema>;
 @WebSocketGateway()
 export class FlowGateway {
   constructor(
-    private readonly envService: EnvService,
     private readonly createFlowUseCase: CreateFlowUseCase,
     private readonly getFlowSchemaUseCase: GetFlowSchemaUseCase,
     private readonly setFlowInput: SetFlowInputUseCase,

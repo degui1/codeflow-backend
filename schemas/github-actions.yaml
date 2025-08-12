@@ -26,11 +26,6 @@ groups:
   jobs-group:
     label: Jobs
     description: Define os jobs da action.
-    rules:
-      required-jobs:
-        description: Ao menos um job é necessário
-        condition: $count(groups.jobs-group.fields) > 0
-        error: Ao menos um job é necessário
     fields:
       jobs:
         type: list
@@ -59,7 +54,6 @@ groups:
                     type: string
                     help: Comando a ser executado.
                     repeatable: true
-
 rules:
   required-jobs:
     description: Ao menos um job é necessário
