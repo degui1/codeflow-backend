@@ -21,7 +21,13 @@ export class SetFlowInputUseCase {
   constructor(private readonly languageExpression: LanguageExpressionService) {}
 
   private validateFieldValue(field: Field, value: unknown): void {
-    const { type, itemType, fields } = field;
+    const { type, itemType, fields, defaultValues } = field;
+
+    if (defaultValues && !defaultValues.includes(value)) {
+      throw new WsException(
+        `Expected one of these values '${defaultValues.toString()}', but received ${String(value)}`,
+      );
+    }
 
     if (type === 'string' && typeof value !== 'string') {
       throw new WsException(

@@ -23,7 +23,7 @@ export type Field = {
   nameableKey?: boolean;
   label?: string;
   help?: string;
-  defaultValues?: string[];
+  defaultValues?: unknown[];
   itemType?: FieldType;
   rules?: Record<string, Rule>;
   required?: boolean;
@@ -35,7 +35,7 @@ export const FieldSchema: z.ZodType<Field> = z.lazy(() =>
     type: FieldTypeEnum,
     // label: z.string().optional(),
     help: z.string().optional(),
-    defaultValues: z.array(z.string()).optional(),
+    defaultValues: z.array(z.unknown()).optional(),
     itemType: FieldTypeEnum.optional(),
     // rules: z.record(RuleSchema).optional(),
     nameableKey: z.boolean().optional(),

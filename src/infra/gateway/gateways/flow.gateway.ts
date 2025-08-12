@@ -23,7 +23,19 @@ const getFlowSchemaBodySchema = z.object({
 });
 
 export const setFlowFieldSchema = z.object({
-  path: z.string(),
+  path: z
+    .string()
+    .min(1)
+    .refine((val) => /^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*$/.test(val), {
+      message:
+        'Path must start and end with a string and contain only alphanumeric, underscore, and dot as separator (no leading, trailing, or consecutive dots).',
+    })
+    .transform((path) => {
+      return path
+        .split('.')
+        .map((segment) => (segment.includes('-') ? `"${segment}"` : segment))
+        .join('.');
+    }),
   value: z.unknown(),
 });
 
