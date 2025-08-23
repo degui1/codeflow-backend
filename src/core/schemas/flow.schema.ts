@@ -15,27 +15,29 @@ export const RuleSchema = z.object({
   error: z.string(),
 });
 export type Rule = z.infer<typeof RuleSchema>;
+export const RulesSchema = z.record(RuleSchema).optional();
+export type Rules = z.infer<typeof RulesSchema>;
 
 export type Field = {
   type: FieldType;
   nameableKey?: boolean;
   label?: string;
   help?: string;
-  defaultValues?: string[];
+  defaultValues?: unknown[];
   itemType?: FieldType;
   rules?: Record<string, Rule>;
   required?: boolean;
   fields?: Record<string, Field>;
 };
 
-const FieldSchema: z.ZodType<Field> = z.lazy(() =>
+export const FieldSchema: z.ZodType<Field> = z.lazy(() =>
   z.object({
     type: FieldTypeEnum,
     // label: z.string().optional(),
     help: z.string().optional(),
-    defaultValues: z.array(z.string()).optional(),
+    defaultValues: z.array(z.unknown()).optional(),
     itemType: FieldTypeEnum.optional(),
-    rules: z.record(RuleSchema).optional(),
+    // rules: z.record(RuleSchema).optional(),
     nameableKey: z.boolean().optional(),
     required: z.boolean().optional(),
     fields: z.record(FieldSchema).optional(),
@@ -45,7 +47,7 @@ const FieldSchema: z.ZodType<Field> = z.lazy(() =>
 export const GroupSchema = z.object({
   label: z.string(),
   description: z.string().optional(),
-  rules: z.record(RuleSchema).optional(),
+  // rules: z.record(RuleSchema).optional(),
   fields: z.record(FieldSchema).optional(),
 });
 export type Group = z.infer<typeof GroupSchema>;

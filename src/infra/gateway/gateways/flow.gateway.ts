@@ -15,7 +15,6 @@ import { GetFlowSchemaUseCase } from 'src/domain/use-cases/flow/get-flow-schema.
 import { CreateFlowUseCase } from 'src/domain/use-cases/flow/create-flow.use-case';
 import { CreateFlowFileUseCase } from 'src/domain/use-cases/flow/create-flow-file.use-case';
 import { SetFlowInputUseCase } from 'src/domain/use-cases/flow/set-flow-input.use-case';
-import { EnvService } from 'src/infra/env/env.service';
 
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
 
@@ -24,7 +23,19 @@ const getFlowSchemaBodySchema = z.object({
 });
 
 export const setFlowFieldSchema = z.object({
-  path: z.string(),
+  path: z
+    .string()
+    .min(1)
+    .refine((val) => /^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*$/.test(val), {
+      message:
+        'Path must start and end with a string and contain only alphanumeric, underscore, and dot as separator (no leading, trailing, or consecutive dots).',
+    })
+    .transform((path) => {
+      return path
+        .split('.')
+        .map((segment) => (segment.includes('-') ? `"${segment}"` : segment))
+        .join('.');
+    }),
   value: z.unknown(),
 });
 
@@ -51,7 +62,6 @@ type GetFlowSchemaBodySchema = z.infer<typeof getFlowSchemaBodySchema>;
 @WebSocketGateway()
 export class FlowGateway {
   constructor(
-    private readonly envService: EnvService,
     private readonly createFlowUseCase: CreateFlowUseCase,
     private readonly getFlowSchemaUseCase: GetFlowSchemaUseCase,
     private readonly setFlowInput: SetFlowInputUseCase,
@@ -98,9 +108,10 @@ export class FlowGateway {
   }
 
   @SubscribeMessage('create-flow')
-  createFlow(@ConnectedSocket() client: FlowSocket) {
-    const { flow } = this.createFlowUseCase.execute({
+  async createFlow(@ConnectedSocket() client: FlowSocket) {
+    const { flow } = await this.createFlowUseCase.execute({
       inputs: client.data.inputs,
+      rules: client.data.schema.rules,
     });
 
     client.data.flow = flow;

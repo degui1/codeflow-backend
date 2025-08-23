@@ -12,7 +12,8 @@ export class ZodValidationPipe<T extends ZodSchema> implements PipeTransform {
     } catch (error) {
       if (error instanceof ZodError) {
         throw new WsException({
-          errors: fromZodError(error),
+          name: 'Validation failed',
+          errors: fromZodError(error).message,
         });
       }
 
