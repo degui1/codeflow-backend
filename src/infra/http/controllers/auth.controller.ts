@@ -91,40 +91,4 @@ export class AuthController {
 
     return res.redirect(CLIENT_URL);
   }
-
-  @Get('github/callback')
-  @Public()
-  async githubOAuth(
-    @Query('code') code: string,
-    @Query('state') state: string,
-    @Cookies(STATE_COOKIE_KEY) stateCookie: string,
-    @Cookies(CODE_VERIFIER_COOKIE_KEY) codeVerifier: string,
-    @Res() res: Response,
-  ) {
-    const { accessToken, tokenType, user } =
-      await this.oauthGithubService.fetchUser(
-        code,
-        state,
-        stateCookie,
-        codeVerifier,
-      );
-
-    const sessionToken = crypto.randomBytes(24).toString().normalize();
-
-    await this.authUseCase.execute({
-      accessToken,
-      tokenType,
-      sessionToken,
-      email: user.email!, // todo - remove "!"
-      name: user.globalName ?? user.username,
-      oauthUserId: user.id.toString(),
-      provider: 'DISCORD',
-      username: user.username,
-    });
-
-    const CLIENT_URL = this.envService.get('CLIENT_BASE_URL');
-    res.cookie(SESSION_COOKIE_KEY, sessionToken);
-
-    return res.redirect(CLIENT_URL);
-  }
 }
