@@ -1,8 +1,10 @@
-import { Prisma } from 'generated/prisma';
-import { AccountsRepository } from 'src/domain/repositories/accounts.repository';
-import { PrismaService } from '../prisma.service';
 import { Injectable } from '@nestjs/common';
-import { Transaction } from 'src/domain/repositories/auth.repository';
+import { Prisma } from 'generated/prisma';
+
+import { AccountsRepository } from 'src/domain/repositories/accounts.repository';
+import { Transaction } from 'src/core/utils/transaction';
+
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class PrismaAccountsRepository implements AccountsRepository {

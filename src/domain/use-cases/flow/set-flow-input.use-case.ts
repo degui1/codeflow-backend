@@ -97,7 +97,7 @@ export class SetFlowInputUseCase {
       const part = parts[i];
       if (!(part in curr)) {
         if (part === 'nameable') {
-          curr[value] = {};
+          curr[String(value)] = {};
         } else {
           curr[part] = {};
         }

@@ -1,5 +1,6 @@
 import { Prisma, Session } from 'generated/prisma';
-import { Transaction } from './auth.repository';
+
+import { Transaction } from 'src/core/utils/transaction';
 
 export abstract class SessionsRepository {
   abstract findByToken(sessionId: string): Promise<Session | null>;
