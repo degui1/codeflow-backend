@@ -1,18 +1,21 @@
 import { Module } from '@nestjs/common';
+
+import { FlowSchemasRepository } from 'src/domain/repositories/flow-schemas.repository';
+import { AuthRepository } from 'src/domain/repositories/auth.repository';
+import { AccountsRepository } from 'src/domain/repositories/accounts.repository';
+import { PostsRepository } from 'src/domain/repositories/posts.repository';
+import { UsersRepository } from 'src/domain/repositories/users.repository';
 import { SessionsRepository } from 'src/domain/repositories/sessions.repository';
+import { FlowsRepository } from 'src/domain/repositories/flows.repository';
 
 import { PrismaService } from './prisma/prisma.service';
 import { PrismaSessionsRepository } from './prisma/repositories/sessions.repository';
-import { UsersRepository } from 'src/domain/repositories/users.repository';
 import { PrismaUsersRepository } from './prisma/repositories/users.repository';
-import { PostsRepository } from 'src/domain/repositories/posts.repository';
 import { PrismaPostsRepository } from './prisma/repositories/posts.repository';
-import { AccountsRepository } from 'src/domain/repositories/accounts.repository';
 import { PrismaAccountsRepository } from './prisma/repositories/accounts.repository';
-import { AuthRepository } from 'src/domain/repositories/auth.repository';
 import { PrismaAuthRepository } from './prisma/repositories/auth.repository';
-import { FlowSchemasRepository } from 'src/domain/repositories/flow-schemas.repository';
 import { PrismaFlowSchemasRepository } from './prisma/repositories/flow-schemas.repository';
+import { PrismaFlowsRepository } from './prisma/repositories/flows.repository';
 
 @Module({
   providers: [
@@ -41,6 +44,10 @@ import { PrismaFlowSchemasRepository } from './prisma/repositories/flow-schemas.
       provide: FlowSchemasRepository,
       useClass: PrismaFlowSchemasRepository,
     },
+    {
+      provide: FlowsRepository,
+      useClass: PrismaFlowsRepository,
+    },
   ],
   exports: [
     PrismaService,
@@ -50,6 +57,7 @@ import { PrismaFlowSchemasRepository } from './prisma/repositories/flow-schemas.
     AccountsRepository,
     AuthRepository,
     FlowSchemasRepository,
+    FlowsRepository,
   ],
 })
 export class DatabaseModule {}

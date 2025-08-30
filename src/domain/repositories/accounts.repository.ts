@@ -1,5 +1,6 @@
 import { Account, Prisma } from 'generated/prisma';
-import { Transaction } from './auth.repository';
+
+import { Transaction } from 'src/core/utils/transaction';
 
 export abstract class AccountsRepository {
   abstract create(

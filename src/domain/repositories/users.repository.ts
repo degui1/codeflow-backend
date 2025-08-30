@@ -1,5 +1,6 @@
 import { Prisma, User } from 'generated/prisma';
-import { Transaction } from './auth.repository';
+
+import { Transaction } from 'src/core/utils/transaction';
 
 export abstract class UsersRepository {
   abstract findById(id: string): Promise<User | null>;
