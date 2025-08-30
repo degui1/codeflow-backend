@@ -59,7 +59,13 @@ type FlowSocket = Socket<
 
 type GetFlowSchemaBodySchema = z.infer<typeof getFlowSchemaBodySchema>;
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: ['http://localhost:5173'],
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+})
 export class FlowGateway {
   constructor(
     private readonly createFlowUseCase: CreateFlowUseCase,
