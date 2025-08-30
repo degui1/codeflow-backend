@@ -14,6 +14,7 @@ import { AuthUseCase } from 'src/domain/use-cases/auth/auth.use-case';
 import { OAuthDiscordService } from 'src/infra/auth/oauth-discord.service';
 import { OAuthGitHubService } from 'src/infra/auth/oauth-github.service';
 import { Public } from '../decorators/public.decorator';
+import { EnvService } from 'src/infra/env/env.service';
 
 const SESSION_COOKIE_KEY = 'session_cookie';
 const STATE_COOKIE_KEY = 'oauth_state';
@@ -26,6 +27,7 @@ export class AuthController {
     private readonly oauthGithubService: OAuthGitHubService,
     private readonly authUseCase: AuthUseCase,
     private readonly cookieService: CookieService,
+    private readonly envService: EnvService,
   ) {}
 
   private getOAuthService(provider: string) {
@@ -84,8 +86,9 @@ export class AuthController {
       image: user.image,
     });
 
+    const CLIENT_URL = this.envService.get('CLIENT_BASE_URL');
     res.cookie(SESSION_COOKIE_KEY, sessionToken);
 
-    return res.send();
+    return res.redirect(CLIENT_URL);
   }
 }

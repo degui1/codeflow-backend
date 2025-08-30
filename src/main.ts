@@ -7,6 +7,12 @@ async function bootstrap() {
     snapshot: true,
   });
   app.use(cookieParser());
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+    headers: 'Content-Type, Authorization',
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
