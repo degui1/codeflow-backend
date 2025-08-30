@@ -7,10 +7,18 @@ import {
 } from 'src/domain/repositories/auth.repository';
 
 import { PrismaService } from '../prisma.service';
+import { AccountsRepository } from 'src/domain/repositories/accounts.repository';
+import { SessionsRepository } from 'src/domain/repositories/sessions.repository';
+import { UsersRepository } from 'src/domain/repositories/users.repository';
 
 @Injectable()
 export class PrismaAuthRepository implements AuthRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly accountsRepository: AccountsRepository,
+    private readonly sessionsRepository: SessionsRepository,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
   async registerUser({
     data: {
@@ -25,14 +33,14 @@ export class PrismaAuthRepository implements AuthRepository {
       tokenType,
       username,
     },
-    createAccountFn,
-    createSessionFn,
-    createUserFn,
   }: RegisterUserProps): Promise<[User, Account, Session]> {
     return this.prismaService.$transaction(async (tx) => {
-      const user = await createUserFn({ email, username, name, image }, tx);
+      const user = await this.usersRepository.create(
+        { email, username, name, image },
+        tx,
+      );
 
-      const account = await createAccountFn(
+      const account = await this.accountsRepository.create(
         {
           user_id: user.id,
           provider,
@@ -44,7 +52,7 @@ export class PrismaAuthRepository implements AuthRepository {
         tx,
       );
 
-      const session = await createSessionFn(
+      const session = await this.sessionsRepository.createUserSession(
         {
           user_id: user.id,
           expires: sessionExpires,

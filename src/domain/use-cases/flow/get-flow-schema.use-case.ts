@@ -41,8 +41,11 @@ export class GetFlowSchemaUseCase {
       return {
         schema,
       };
-    } catch {
-      throw new WsException('Unable to load flow schema');
+    } catch (error) {
+      throw new WsException({
+        message: 'Unable to load flow schema',
+        error: error instanceof Error ? error.cause : String(error),
+      });
     }
   }
 }

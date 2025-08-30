@@ -1,12 +1,12 @@
-import { Post } from 'generated/prisma';
+import { Post, Prisma } from 'generated/prisma';
 
 export interface PostWithLike extends Post {
   _count: {
-    Like: number;
+    likes: number;
   };
 }
 
-export type PublicPost = Omit<PostWithLike, 'id' | 'user_id'>;
+export type PublicPost = Omit<PostWithLike, 'id' | 'user_id' | 'flowId'>;
 
 export abstract class PostsRepository {
   abstract findManyPublicByUserId(
@@ -18,4 +18,8 @@ export abstract class PostsRepository {
     page: number,
   ): Promise<PostWithLike[]>;
   abstract findManyPublic(page: number): Promise<PublicPost[]>;
+  abstract create(
+    data: Omit<Prisma.PostUncheckedCreateInput, 'flowId'>,
+    flow: Prisma.FlowUncheckedCreateInput,
+  ): Promise<void>;
 }

@@ -95,7 +95,13 @@ export class SetFlowInputUseCase {
 
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i];
-      if (!(part in curr)) curr[part] = {};
+      if (!(part in curr)) {
+        if (part === 'nameable') {
+          curr[value] = {};
+        } else {
+          curr[part] = {};
+        }
+      }
 
       curr = curr[part] as Record<string, unknown>;
     }

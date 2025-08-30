@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Provider } from 'generated/prisma';
 
+import { AuthRepository } from 'src/domain/repositories/auth.repository';
+
 import { SessionsRepository } from '../../repositories/sessions.repository';
 import { UsersRepository } from '../../repositories/users.repository';
-import { AccountsRepository } from 'src/domain/repositories/accounts.repository';
-import { AuthRepository } from 'src/domain/repositories/auth.repository';
 
 interface AuthUseCaseRequest {
   email: string;
@@ -25,7 +25,6 @@ export class AuthUseCase {
   constructor(
     private readonly sessionsRepository: SessionsRepository,
     private readonly usersRepository: UsersRepository,
-    private readonly accountsRepository: AccountsRepository,
     private readonly authRepository: AuthRepository,
   ) {}
 
@@ -69,9 +68,6 @@ export class AuthUseCase {
         username,
         image,
       },
-      createAccountFn: (data, tx) => this.accountsRepository.create(data, tx),
-      createSessionFn: this.sessionsRepository.createUserSession,
-      createUserFn: (data, tx) => this.usersRepository.create(data, tx),
     });
   }
 }

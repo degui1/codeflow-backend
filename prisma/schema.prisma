@@ -68,15 +68,17 @@ model Post {
   id          String     @id @default(uuid())
   title       String
   description String
-  downloads   Int
+  downloads   Int        @default(0)
   visibility  Visibility @default(PRIVATE)
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
   user_id     String
+  flowId      String
 
-  user    User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  Comment Comment[]
-  Like    Like[]
+  user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  flow     Flow      @relation(fields: [flowId], references: [id])
+  comments Comment[]
+  likes    Like[]
 
   @@map("posts")
 }
@@ -108,12 +110,13 @@ model Like {
 
 model Flow {
   id           String   @id @default(uuid())
-  blob         Bytes
+  content      String
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
   flowSchemaId String
 
   flowSchema FlowSchema @relation(fields: [flowSchemaId], references: [id])
+  Post       Post[]
 }
 
 model FlowSchema {
