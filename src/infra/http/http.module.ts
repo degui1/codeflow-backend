@@ -12,6 +12,8 @@ import { CommunityController } from './controllers/community.controller';
 import { GetProfilePostHistoryUseCase } from 'src/domain/use-cases/profile/get-profile-post-history.use-case';
 import { GetUserPostHistoryUseCase } from 'src/domain/use-cases/current-user/get-current-user-post-history.use-case';
 import { GetCommunityPostsUseCase } from 'src/domain/use-cases/community/get-community-posts.use-case';
+import { FlowSchemasController } from './controllers/flowSchema.controller';
+import { GetAvailableFlowSchemas } from 'src/domain/use-cases/flow/get-available-flow-schemas.use-case';
 
 @Module({
   imports: [DatabaseModule, AuthModule, EnvModule],
@@ -20,6 +22,7 @@ import { GetCommunityPostsUseCase } from 'src/domain/use-cases/community/get-com
     UserController,
     MeController,
     CommunityController,
+    FlowSchemasController,
   ],
   providers: [
     AuthUseCase,
@@ -28,6 +31,7 @@ import { GetCommunityPostsUseCase } from 'src/domain/use-cases/community/get-com
     GetProfilePostHistoryUseCase,
     GetUserPostHistoryUseCase,
     GetCommunityPostsUseCase,
+    GetAvailableFlowSchemas,
   ],
 })
 export class HttpModule {}

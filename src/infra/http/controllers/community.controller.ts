@@ -4,12 +4,14 @@ import { GetCommunityPostsUseCase } from 'src/domain/use-cases/community/get-com
 
 import { Page, pageSchema } from '../schemas/page.schema';
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
+import { Public } from '../decorators/public.decorator';
 
 @Controller('community')
 export class CommunityController {
   constructor(private getCommunityPostsUseCase: GetCommunityPostsUseCase) {}
 
   @Get()
+  @Public()
   async getCommunityPosts(
     @Query('page', new ZodValidationPipe(pageSchema)) page: Page,
   ) {

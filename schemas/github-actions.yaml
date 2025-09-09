@@ -18,6 +18,7 @@ groups:
         itemType: string
         required: true
         help: Lista de eventos que irão disparar a action
+        defaultValues: [create, delete, pull, push, pull-request, deployment]
       branches:
         type: list
         itemType: string

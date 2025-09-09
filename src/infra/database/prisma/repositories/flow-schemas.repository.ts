@@ -9,4 +9,8 @@ export class PrismaFlowSchemasRepository implements FlowSchemasRepository {
   async findById(id: string) {
     return this.prismaService.flowSchema.findUnique({ where: { id } });
   }
+
+  async getAll() {
+    return this.prismaService.flowSchema.findMany();
+  }
 }
