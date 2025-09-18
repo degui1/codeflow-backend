@@ -41,13 +41,16 @@ export class MeController {
     @UserId() userId: string,
     @Query('page', new ZodValidationPipe(pageSchema)) page: Page,
   ) {
-    const { posts } = await this.getUserPostHistoryUseCase.execute({
-      userId,
-      page,
-    });
+    const { posts, hasNextPage } = await this.getUserPostHistoryUseCase.execute(
+      {
+        userId,
+        page,
+      },
+    );
 
     return {
       posts,
+      hasNextPage,
     };
   }
 }

@@ -18,12 +18,17 @@ export class PrismaPostsRepository implements PostsRepository {
         _count: {
           select: { likes: true },
         },
+        flow: { select: { content: true } },
+        user: { select: { username: true } },
       },
       where: {
         user_id: userId,
       },
-      take: 20,
-      skip: (page - 1) * 20,
+      orderBy: {
+        created_at: 'desc',
+      },
+      take: 10,
+      skip: (page - 1) * 10,
     });
 
     return posts;
@@ -32,13 +37,16 @@ export class PrismaPostsRepository implements PostsRepository {
   async findManyPublicByUserId(userId: string, page: number) {
     const posts = await this.prismaService.post.findMany({
       select: {
+        id: true,
         created_at: true,
         description: true,
         downloads: true,
         title: true,
+        flow: { select: { content: true } },
         visibility: true,
         updated_at: true,
         _count: { select: { likes: true } },
+        user: { select: { username: true } },
       },
       where: {
         user_id: userId,
@@ -61,6 +69,8 @@ export class PrismaPostsRepository implements PostsRepository {
         visibility: true,
         updated_at: true,
         _count: { select: { likes: true } },
+        flow: { select: { content: true } },
+        user: { select: { username: true } },
       },
       where: {
         visibility: 'PUBLIC',

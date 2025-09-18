@@ -12,6 +12,7 @@ export interface GetUserPostHistoryRequest {
 
 export interface GetUserPostHistoryResponse {
   posts: PostWithLike[];
+  hasNextPage: boolean;
 }
 
 @Injectable()
@@ -27,8 +28,15 @@ export class GetUserPostHistoryUseCase {
       page ?? 1,
     );
 
+    const hasNextPage = posts.length === 10;
+
+    if (hasNextPage) {
+      posts.pop();
+    }
+
     return {
       posts: posts,
+      hasNextPage,
     };
   }
 }
