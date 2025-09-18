@@ -17,49 +17,57 @@ groups:
         type: list
         itemType: string
         required: true
+        label: 'On'
         help: Lista de eventos que irão disparar a action
         defaultValues: [create, delete, pull, push, pull-request, deployment]
       branches:
         type: list
         itemType: string
         required: true
+        label: 'Branches'
         help: Lista de branches onde o push irá disparar a action.
   jobs_group:
     label: Jobs
     description: Define os jobs da action.
     fields:
       jobs:
+        label: 'Jobs'
         type: list
         itemType: object
         fields:
           nameable:
+            label: 'Nome'
             type: object
             nameableKey: true
             fields:  
               runs-on:
+                label: 'Runs-on'
                 type: string
                 defaultValues: [example1, example2]
                 required: true
                 help: Define o sistema operacional usado.
               steps:
+                label: 'Ações' 
                 type: list
                 required: true
                 help: Lista de etapas executadas no job.
                 itemType: object
                 fields:
                   name:
+                    label: 'Nome'
                     type: string
                     help: Nome da etapa.
                     repeatable: true
                   run:
+                    label: 'Run'
                     type: string
                     help: Comando a ser executado.
                     repeatable: true
 rules:
-  required-jobs:
-    description: Ao menos um job é necessário
-    condition: $count(groups.jobs_group.fields.jobs) > 0
-    error: Ao menos um job é necessário
+  # required-jobs:
+  #   description: Ao menos um job é necessário
+  #   condition: $count(groups.jobs_group.fields.jobs) > 0
+  #   error: Ao menos um job é necessário
   required-events:
     description: Obriga o preenchimento do field 'ON'.
     condition: $count(groups.on_group.fields.on) > 0

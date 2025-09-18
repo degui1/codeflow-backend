@@ -23,10 +23,16 @@ export class SetFlowInputUseCase {
   private validateFieldValue(field: Field, value: unknown): void {
     const { type, itemType, fields, defaultValues } = field;
 
-    if (defaultValues && !defaultValues.includes(value)) {
-      throw new WsException(
-        `Expected one of these values '${defaultValues.toString()}', but received ${String(value)}`,
-      );
+    if (defaultValues) {
+      if (
+        (Array.isArray(value) &&
+          !value.every((item) => defaultValues.includes(item))) ||
+        (!Array.isArray(value) && !defaultValues.includes(value))
+      ) {
+        throw new WsException(
+          `Expected one of these values '${defaultValues.toString()}', but received ${String(value)}`,
+        );
+      }
     }
 
     if (type === 'string' && typeof value !== 'string') {

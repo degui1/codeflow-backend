@@ -32,6 +32,7 @@ export type Field = {
 export const FieldSchema: z.ZodType<Field> = z.lazy(() =>
   z.object({
     type: FieldTypeEnum,
+    label: z.string().optional(),
     help: z.string().optional(),
     defaultValues: z.array(z.unknown()).optional(),
     itemType: FieldTypeEnum.optional(),
