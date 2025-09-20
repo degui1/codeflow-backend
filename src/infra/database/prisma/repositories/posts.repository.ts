@@ -2,8 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/prisma';
 
 import { FlowsRepository } from 'src/domain/repositories/flows.repository';
-import { PostsRepository } from 'src/domain/repositories/posts.repository';
+import {
+  FindManyPublicFilters,
+  PostsRepository,
+} from 'src/domain/repositories/posts.repository';
 import { PrismaService } from 'src/infra/database/prisma/prisma.service';
+
+const ITEMS_PER_PAGE = 9;
 
 @Injectable()
 export class PrismaPostsRepository implements PostsRepository {
@@ -27,8 +32,8 @@ export class PrismaPostsRepository implements PostsRepository {
       orderBy: {
         created_at: 'desc',
       },
-      take: 10,
-      skip: (page - 1) * 10,
+      take: ITEMS_PER_PAGE + 1,
+      skip: (page - 1) * ITEMS_PER_PAGE,
     });
 
     return posts;
@@ -59,24 +64,35 @@ export class PrismaPostsRepository implements PostsRepository {
     return posts;
   }
 
-  async findManyPublic(page: number) {
+  async findManyPublic(page: number, filters: FindManyPublicFilters) {
     const posts = await this.prismaService.post.findMany({
-      select: {
-        created_at: true,
-        description: true,
-        downloads: true,
-        title: true,
-        visibility: true,
-        updated_at: true,
-        _count: { select: { likes: true } },
+      include: {
+        _count: {
+          select: { likes: true },
+        },
         flow: { select: { content: true } },
         user: { select: { username: true } },
       },
       where: {
         visibility: 'PUBLIC',
+        ...(filters?.author && {
+          OR: [
+            { user: { username: { contains: filters.author } } },
+            { user: { name: { contains: filters.author } } },
+          ],
+        }),
+        ...(filters?.downloads && { downloads: filters.downloads }),
+        ...(filters?.flowSchemaId && {
+          flow: { flowSchemaId: filters.flowSchemaId },
+        }),
+        ...(filters?.startDate && { created_at: { gte: filters.startDate } }),
+        ...(filters?.endDate && { created_at: { lte: filters.endDate } }),
       },
-      take: 20,
-      skip: (page - 1) * 20,
+      orderBy: {
+        created_at: 'desc',
+      },
+      take: ITEMS_PER_PAGE + 1,
+      skip: (page - 1) * ITEMS_PER_PAGE,
     });
 
     return posts;
