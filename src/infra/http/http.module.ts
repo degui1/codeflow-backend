@@ -14,6 +14,7 @@ import { GetUserPostHistoryUseCase } from 'src/domain/use-cases/current-user/get
 import { GetCommunityPostsUseCase } from 'src/domain/use-cases/community/get-community-posts.use-case';
 import { FlowSchemasController } from './controllers/flowSchema.controller';
 import { GetAvailableFlowSchemas } from 'src/domain/use-cases/flow/get-available-flow-schemas.use-case';
+import { LogoutUseCase } from 'src/domain/use-cases/auth/logout.use-case';
 
 @Module({
   imports: [DatabaseModule, AuthModule, EnvModule],
@@ -32,6 +33,7 @@ import { GetAvailableFlowSchemas } from 'src/domain/use-cases/flow/get-available
     GetUserPostHistoryUseCase,
     GetCommunityPostsUseCase,
     GetAvailableFlowSchemas,
+    LogoutUseCase,
   ],
 })
 export class HttpModule {}

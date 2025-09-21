@@ -7,6 +7,7 @@ import { OAuthDiscordService } from './oauth-discord.service';
 import { OAuthGitHubService } from './oauth-github.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { ClearSessionUseCase } from 'src/domain/use-cases/auth/clear-session.use-case';
 
 @Module({
   imports: [DatabaseModule, EnvModule],
@@ -14,6 +15,7 @@ import { AuthGuard } from './auth.guard';
     CookieService,
     OAuthDiscordService,
     OAuthGitHubService,
+    ClearSessionUseCase,
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
   exports: [CookieService, OAuthDiscordService, OAuthGitHubService],
