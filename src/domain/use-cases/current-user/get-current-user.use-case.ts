@@ -12,6 +12,7 @@ export interface GetUserUseCaseResponse {
   username: string;
   name: string | null;
   createdAt: Date;
+  id: string;
 }
 
 @Injectable()
@@ -33,6 +34,7 @@ export class GetUserUseCase {
       username: user.username,
       name: user.name,
       createdAt: user.created_at,
+      id: user.id,
     };
   }
 }

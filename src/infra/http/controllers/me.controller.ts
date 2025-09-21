@@ -18,7 +18,7 @@ export class MeController {
 
   @Get()
   async getUser(@UserId() userId: string) {
-    const { name, username, createdAt, email, image } =
+    const { name, username, createdAt, email, image, id } =
       await this.getUserUseCase.execute({ userId });
 
     return {
@@ -27,6 +27,7 @@ export class MeController {
       createdAt,
       email,
       image,
+      id,
     };
   }
 
