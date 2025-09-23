@@ -98,6 +98,20 @@ export class PrismaPostsRepository implements PostsRepository {
     return posts;
   }
 
+  async getSummaryByUserId(userId: string) {
+    const [flows, likes] = await Promise.all([
+      this.prismaService.post.count({
+        where: { user_id: userId },
+      }),
+      this.prismaService.like.count({ where: { user_id: userId } }),
+    ]);
+
+    return {
+      flows,
+      likes,
+    };
+  }
+
   async create(data: Prisma.PostUncheckedCreateInput) {
     await this.prismaService.$transaction(async (tx) => {
       const flow = await this.flowsRepository.create(

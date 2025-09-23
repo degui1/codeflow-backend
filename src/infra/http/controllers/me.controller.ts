@@ -3,6 +3,7 @@ import { Controller, Delete, Get, HttpCode, Query } from '@nestjs/common';
 import { GetUserUseCase } from 'src/domain/use-cases/current-user/get-current-user.use-case';
 import { DeleteUserUseCase } from 'src/domain/use-cases/current-user/delete-current-user.use-case';
 import { GetUserPostHistoryUseCase } from 'src/domain/use-cases/current-user/get-current-user-post-history.use-case';
+import { GetUserSummaryUseCase } from 'src/domain/use-cases/current-user/get-current-user-summar.use-case';
 
 import { UserId } from '../decorators/user.decorator';
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
@@ -14,6 +15,7 @@ export class MeController {
     private readonly getUserUseCase: GetUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
     private readonly getUserPostHistoryUseCase: GetUserPostHistoryUseCase,
+    private readonly getUserSummaryUseCase: GetUserSummaryUseCase,
   ) {}
 
   @Get()
@@ -52,6 +54,18 @@ export class MeController {
     return {
       posts,
       hasNextPage,
+    };
+  }
+
+  @Get('summary')
+  async getUserSummary(@UserId() userId: string) {
+    const { flows, likes } = await this.getUserSummaryUseCase.execute({
+      userId,
+    });
+
+    return {
+      flows,
+      likes,
     };
   }
 }

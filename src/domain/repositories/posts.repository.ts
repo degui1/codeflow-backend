@@ -33,4 +33,7 @@ export abstract class PostsRepository {
     data: Omit<Prisma.PostUncheckedCreateInput, 'flowId'>,
     flow: Prisma.FlowUncheckedCreateInput,
   ): Promise<void>;
+  abstract getSummaryByUserId(
+    userId: string,
+  ): Promise<{ flows: number; likes: number }>;
 }

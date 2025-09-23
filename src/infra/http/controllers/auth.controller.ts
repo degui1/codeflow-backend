@@ -5,7 +5,6 @@ import {
   ForbiddenException,
   Get,
   Param,
-  Post,
   Query,
   Res,
 } from '@nestjs/common';
