@@ -47,7 +47,7 @@ export abstract class PostsRepository {
   ): Promise<[Flow, Post]>;
   abstract getSummaryByUserId(
     userId: string,
-  ): Promise<{ flows: number; likes: number }>;
+  ): Promise<{ flows: number; likes: number; downloads: number }>;
   abstract deleteById(postId: string): Promise<void>;
   abstract updatePostById(data: UpdatePostById): Promise<void>;
   abstract findById(postId: string): Promise<Post | null>;

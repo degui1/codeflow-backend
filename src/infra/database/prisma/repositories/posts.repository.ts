@@ -104,16 +104,29 @@ export class PrismaPostsRepository implements PostsRepository {
   }
 
   async getSummaryByUserId(userId: string) {
-    const [flows, likes] = await Promise.all([
+    const [
+      flows,
+      likes,
+      {
+        _sum: { downloads },
+      },
+    ] = await Promise.all([
       this.prismaService.post.count({
         where: { user_id: userId },
       }),
-      this.prismaService.like.count({ where: { user_id: userId } }),
+
+      this.prismaService.like.count({ where: { post: { user_id: userId } } }),
+
+      this.prismaService.post.aggregate({
+        where: { user_id: userId },
+        _sum: { downloads: true },
+      }),
     ]);
 
     return {
       flows,
       likes,
+      downloads: downloads || 0,
     };
   }
 

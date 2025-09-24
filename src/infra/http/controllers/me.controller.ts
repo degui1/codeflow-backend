@@ -59,13 +59,15 @@ export class MeController {
 
   @Get('summary')
   async getUserSummary(@UserId() userId: string) {
-    const { flows, likes } = await this.getUserSummaryUseCase.execute({
-      userId,
-    });
+    const { flows, likes, downloads } =
+      await this.getUserSummaryUseCase.execute({
+        userId,
+      });
 
     return {
       flows,
       likes,
+      downloads,
     };
   }
 }

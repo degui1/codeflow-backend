@@ -10,6 +10,7 @@ export interface GetUserSummaryUseCaseRequest {
 export interface GetUserSummaryUseCaseResponse {
   likes: number;
   flows: number;
+  downloads: number;
 }
 
 @Injectable()
@@ -28,12 +29,13 @@ export class GetUserSummaryUseCase {
       throw new NotFoundException();
     }
 
-    const { flows, likes } =
+    const { flows, likes, downloads } =
       await this.postsRepository.getSummaryByUserId(userId);
 
     return {
       likes,
       flows,
+      downloads,
     };
   }
 }
