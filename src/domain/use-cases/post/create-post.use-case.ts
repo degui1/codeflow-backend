@@ -10,6 +10,7 @@ export interface CreatePostsRequest {
   description: string;
   flowSchemaId: string;
   content: string;
+  visibility: 'PUBLIC' | 'PRIVATE';
 }
 
 @Injectable()
@@ -26,6 +27,7 @@ export class CreatePostsUseCase {
     userId,
     content,
     flowSchemaId,
+    visibility,
   }: CreatePostsRequest): Promise<void> {
     const user = await this.usersRepository.findById(userId);
 
@@ -44,6 +46,7 @@ export class CreatePostsUseCase {
         user_id: userId,
         title,
         description,
+        visibility,
       },
       {
         flowSchemaId,

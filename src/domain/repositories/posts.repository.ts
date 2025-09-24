@@ -1,4 +1,4 @@
-import { Post, Prisma } from 'generated/prisma';
+import { Flow, Post, Prisma } from 'generated/prisma';
 
 export interface PostWithLike extends Post {
   _count: {
@@ -16,6 +16,14 @@ export type FindManyPublicFilters = {
   flowSchemaId?: string;
 };
 
+export type UpdatePostById = {
+  postId: string;
+  userId: string;
+  flowId: string;
+  post?: Prisma.PostUncheckedUpdateInput;
+  flow?: Prisma.FlowUncheckedUpdateInput;
+};
+
 export abstract class PostsRepository {
   abstract findManyPublicByUserId(
     userId: string,
@@ -29,11 +37,17 @@ export abstract class PostsRepository {
     page: number,
     filters: FindManyPublicFilters,
   ): Promise<PublicPost[]>;
+  abstract findUserPostById(
+    postId: string,
+    userId: string,
+  ): Promise<Post | null>;
   abstract create(
     data: Omit<Prisma.PostUncheckedCreateInput, 'flowId'>,
     flow: Prisma.FlowUncheckedCreateInput,
-  ): Promise<void>;
+  ): Promise<[Flow, Post]>;
   abstract getSummaryByUserId(
     userId: string,
   ): Promise<{ flows: number; likes: number }>;
+  abstract deleteById(postId: string): Promise<void>;
+  abstract updatePostById(data: UpdatePostById): Promise<void>;
 }

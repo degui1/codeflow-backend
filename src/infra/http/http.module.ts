@@ -16,6 +16,10 @@ import { FlowSchemasController } from './controllers/flowSchema.controller';
 import { GetAvailableFlowSchemas } from 'src/domain/use-cases/flow/get-available-flow-schemas.use-case';
 import { LogoutUseCase } from 'src/domain/use-cases/auth/logout.use-case';
 import { GetUserSummaryUseCase } from 'src/domain/use-cases/current-user/get-current-user-summar.use-case';
+import { PostsController } from './controllers/posts.controller';
+import { CreatePostsUseCase } from 'src/domain/use-cases/post/create-post.use-case';
+import { UpdatePostsUseCase } from 'src/domain/use-cases/post/update-post.use-case';
+import { DeletePostsUseCase } from 'src/domain/use-cases/post/delete-post.use-case';
 
 @Module({
   imports: [DatabaseModule, AuthModule, EnvModule],
@@ -25,6 +29,7 @@ import { GetUserSummaryUseCase } from 'src/domain/use-cases/current-user/get-cur
     MeController,
     CommunityController,
     FlowSchemasController,
+    PostsController,
   ],
   providers: [
     AuthUseCase,
@@ -36,6 +41,9 @@ import { GetUserSummaryUseCase } from 'src/domain/use-cases/current-user/get-cur
     GetAvailableFlowSchemas,
     LogoutUseCase,
     GetUserSummaryUseCase,
+    CreatePostsUseCase,
+    UpdatePostsUseCase,
+    DeletePostsUseCase,
   ],
 })
 export class HttpModule {}

@@ -20,4 +20,25 @@ export class PrismaFlowsRepository implements FlowsRepository {
 
     return this.prismaService.flow.create({ data });
   }
+
+  async updateById(
+    flowId: string,
+    data?: Prisma.FlowUncheckedUpdateInput,
+    tx?: Transaction,
+  ) {
+    if (!data) {
+      return;
+    }
+
+    const service = tx ?? this.prismaService;
+
+    await service.flow.update({
+      data: {
+        ...(data.content && { content: data.content }),
+      },
+      where: {
+        id: flowId,
+      },
+    });
+  }
 }

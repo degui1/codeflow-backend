@@ -6,4 +6,10 @@ export abstract class FlowsRepository {
     data: Prisma.FlowUncheckedCreateInput,
     tx?: Transaction,
   ): Promise<Flow>;
+
+  abstract updateById(
+    flowId: string,
+    data?: Prisma.FlowUncheckedUpdateInput,
+    tx?: Transaction,
+  ): Promise<void>;
 }

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma';
+import { Flow, Post, Prisma } from 'generated/prisma';
 
 import { FlowsRepository } from 'src/domain/repositories/flows.repository';
 import {
   FindManyPublicFilters,
   PostsRepository,
+  UpdatePostById,
 } from 'src/domain/repositories/posts.repository';
 import { PrismaService } from 'src/infra/database/prisma/prisma.service';
 
@@ -112,12 +113,15 @@ export class PrismaPostsRepository implements PostsRepository {
     };
   }
 
-  async create(data: Prisma.PostUncheckedCreateInput) {
-    await this.prismaService.$transaction(async (tx) => {
+  async create(
+    data: Prisma.PostUncheckedCreateInput,
+    AFlow: Prisma.FlowUncheckedCreateInput,
+  ) {
+    return this.prismaService.$transaction(async (tx) => {
       const flow = await this.flowsRepository.create(
         {
-          flowSchemaId: '',
-          content: '',
+          flowSchemaId: AFlow.flowSchemaId,
+          content: AFlow.content,
         },
         tx,
       );
@@ -128,10 +132,62 @@ export class PrismaPostsRepository implements PostsRepository {
           description: data.description,
           title: data.title,
           user_id: data.user_id,
+          visibility: data.visibility,
         },
       });
 
-      return [flow, post];
+      return [flow, post] as [Flow, Post];
+    });
+  }
+
+  async deleteById(postId: string) {
+    await this.prismaService.post.delete({
+      where: {
+        id: postId,
+      },
+    });
+  }
+
+  async findUserPostById(postId: string, userId: string) {
+    const post = this.prismaService.post.findUnique({
+      where: { id: postId, user_id: userId },
+    });
+
+    return post;
+  }
+
+  async updatePostById({
+    postId,
+    userId,
+    flowId,
+    flow,
+    post,
+  }: UpdatePostById): Promise<void> {
+    if (!flow && !post) {
+      return;
+    }
+
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.post.update({
+        data: {
+          ...(post?.description && { description: post.description }),
+          ...(post?.downloads && { downloads: post.downloads }),
+          ...(post?.likes && { likes: post.likes }),
+          ...(post?.title && { title: post.title }),
+          ...(post?.visibility && { visibility: post.visibility }),
+        },
+        where: { id: postId, user_id: userId },
+      });
+
+      if (flowId) {
+        await this.flowsRepository.updateById(
+          flowId,
+          {
+            ...(flow?.content && { content: flow.content }),
+          },
+          tx,
+        );
+      }
     });
   }
 }
