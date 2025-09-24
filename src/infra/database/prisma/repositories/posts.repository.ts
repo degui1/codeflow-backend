@@ -18,6 +18,10 @@ export class PrismaPostsRepository implements PostsRepository {
     private readonly flowsRepository: FlowsRepository,
   ) {}
 
+  async findById(postId: string): Promise<Post | null> {
+    return this.prismaService.post.findUnique({ where: { id: postId } });
+  }
+
   async findManyByUserId(userId: string, page: number) {
     const posts = await this.prismaService.post.findMany({
       include: {
@@ -176,7 +180,7 @@ export class PrismaPostsRepository implements PostsRepository {
           ...(post?.title && { title: post.title }),
           ...(post?.visibility && { visibility: post.visibility }),
         },
-        where: { id: postId, user_id: userId },
+        where: { id: postId, ...(userId && { user_id: userId }) },
       });
 
       if (flowId) {

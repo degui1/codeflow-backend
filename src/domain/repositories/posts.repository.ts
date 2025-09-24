@@ -18,7 +18,7 @@ export type FindManyPublicFilters = {
 
 export type UpdatePostById = {
   postId: string;
-  userId: string;
+  userId?: string;
   flowId: string;
   post?: Prisma.PostUncheckedUpdateInput;
   flow?: Prisma.FlowUncheckedUpdateInput;
@@ -50,4 +50,5 @@ export abstract class PostsRepository {
   ): Promise<{ flows: number; likes: number }>;
   abstract deleteById(postId: string): Promise<void>;
   abstract updatePostById(data: UpdatePostById): Promise<void>;
+  abstract findById(postId: string): Promise<Post | null>;
 }

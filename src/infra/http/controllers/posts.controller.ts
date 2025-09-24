@@ -6,6 +6,7 @@ import {
   HttpCode,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 
 import { CreatePostsUseCase } from 'src/domain/use-cases/post/create-post.use-case';
@@ -14,6 +15,7 @@ import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
 import { UserId } from '../decorators/user.decorator';
 import { DeletePostsUseCase } from 'src/domain/use-cases/post/delete-post.use-case';
 import { UpdatePostsUseCase } from 'src/domain/use-cases/post/update-post.use-case';
+import { IncreaseDownloadPostUseCase } from 'src/domain/use-cases/post/increase-download-post.use-case';
 
 const createPostSchema = z.object({
   title: z.string(),
@@ -41,12 +43,19 @@ const deletePostSchema = z.object({
 
 type DeletePost = z.infer<typeof deletePostSchema>;
 
+const downloadPostSchema = z.object({
+  id: z.string().uuid(),
+});
+
+type DownloadPost = z.infer<typeof downloadPostSchema>;
+
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly createPosts: CreatePostsUseCase,
     private readonly deletePosts: DeletePostsUseCase,
     private readonly updatePosts: UpdatePostsUseCase,
+    private readonly increaseDownloadPost: IncreaseDownloadPostUseCase,
   ) {}
 
   @Post()
@@ -91,5 +100,13 @@ export class PostsController {
       userId,
       postId: body.id,
     });
+  }
+
+  @Put('download')
+  @HttpCode(204)
+  async increaseDownloadCount(
+    @Body(new ZodValidationPipe(downloadPostSchema)) body: DownloadPost,
+  ) {
+    await this.increaseDownloadPost.execute({ postId: body.id });
   }
 }

@@ -20,6 +20,7 @@ import { PostsController } from './controllers/posts.controller';
 import { CreatePostsUseCase } from 'src/domain/use-cases/post/create-post.use-case';
 import { UpdatePostsUseCase } from 'src/domain/use-cases/post/update-post.use-case';
 import { DeletePostsUseCase } from 'src/domain/use-cases/post/delete-post.use-case';
+import { IncreaseDownloadPostUseCase } from 'src/domain/use-cases/post/increase-download-post.use-case';
 
 @Module({
   imports: [DatabaseModule, AuthModule, EnvModule],
@@ -44,6 +45,7 @@ import { DeletePostsUseCase } from 'src/domain/use-cases/post/delete-post.use-ca
     CreatePostsUseCase,
     UpdatePostsUseCase,
     DeletePostsUseCase,
+    IncreaseDownloadPostUseCase,
   ],
 })
 export class HttpModule {}
