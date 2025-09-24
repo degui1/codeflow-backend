@@ -21,6 +21,7 @@ import { CreatePostsUseCase } from 'src/domain/use-cases/post/create-post.use-ca
 import { UpdatePostsUseCase } from 'src/domain/use-cases/post/update-post.use-case';
 import { DeletePostsUseCase } from 'src/domain/use-cases/post/delete-post.use-case';
 import { IncreaseDownloadPostUseCase } from 'src/domain/use-cases/post/increase-download-post.use-case';
+import { ToggleLikeUseCase } from 'src/domain/use-cases/post/toggle-like.use-case';
 
 @Module({
   imports: [DatabaseModule, AuthModule, EnvModule],
@@ -46,6 +47,7 @@ import { IncreaseDownloadPostUseCase } from 'src/domain/use-cases/post/increase-
     UpdatePostsUseCase,
     DeletePostsUseCase,
     IncreaseDownloadPostUseCase,
+    ToggleLikeUseCase,
   ],
 })
 export class HttpModule {}

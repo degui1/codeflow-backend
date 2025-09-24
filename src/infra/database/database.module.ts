@@ -7,6 +7,7 @@ import { PostsRepository } from 'src/domain/repositories/posts.repository';
 import { UsersRepository } from 'src/domain/repositories/users.repository';
 import { SessionsRepository } from 'src/domain/repositories/sessions.repository';
 import { FlowsRepository } from 'src/domain/repositories/flows.repository';
+import { LikesRepository } from 'src/domain/repositories/likes.repository';
 
 import { PrismaService } from './prisma/prisma.service';
 import { PrismaSessionsRepository } from './prisma/repositories/sessions.repository';
@@ -16,6 +17,7 @@ import { PrismaAccountsRepository } from './prisma/repositories/accounts.reposit
 import { PrismaAuthRepository } from './prisma/repositories/auth.repository';
 import { PrismaFlowSchemasRepository } from './prisma/repositories/flow-schemas.repository';
 import { PrismaFlowsRepository } from './prisma/repositories/flows.repository';
+import { PrismaLikesRepository } from './prisma/repositories/likes.repository';
 
 @Module({
   providers: [
@@ -48,6 +50,10 @@ import { PrismaFlowsRepository } from './prisma/repositories/flows.repository';
       provide: FlowsRepository,
       useClass: PrismaFlowsRepository,
     },
+    {
+      provide: LikesRepository,
+      useClass: PrismaLikesRepository,
+    },
   ],
   exports: [
     PrismaService,
@@ -58,6 +64,7 @@ import { PrismaFlowsRepository } from './prisma/repositories/flows.repository';
     AuthRepository,
     FlowSchemasRepository,
     FlowsRepository,
+    LikesRepository,
   ],
 })
 export class DatabaseModule {}

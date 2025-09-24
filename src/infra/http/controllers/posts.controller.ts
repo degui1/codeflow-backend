@@ -16,6 +16,7 @@ import { UserId } from '../decorators/user.decorator';
 import { DeletePostsUseCase } from 'src/domain/use-cases/post/delete-post.use-case';
 import { UpdatePostsUseCase } from 'src/domain/use-cases/post/update-post.use-case';
 import { IncreaseDownloadPostUseCase } from 'src/domain/use-cases/post/increase-download-post.use-case';
+import { ToggleLikeUseCase } from 'src/domain/use-cases/post/toggle-like.use-case';
 
 const createPostSchema = z.object({
   title: z.string(),
@@ -49,6 +50,12 @@ const downloadPostSchema = z.object({
 
 type DownloadPost = z.infer<typeof downloadPostSchema>;
 
+const toggleLikeSchema = z.object({
+  id: z.string().uuid(),
+});
+
+type ToggleLike = z.infer<typeof toggleLikeSchema>;
+
 @Controller('posts')
 export class PostsController {
   constructor(
@@ -56,6 +63,7 @@ export class PostsController {
     private readonly deletePosts: DeletePostsUseCase,
     private readonly updatePosts: UpdatePostsUseCase,
     private readonly increaseDownloadPost: IncreaseDownloadPostUseCase,
+    private readonly toggleLikeUseCase: ToggleLikeUseCase,
   ) {}
 
   @Post()
@@ -108,5 +116,14 @@ export class PostsController {
     @Body(new ZodValidationPipe(downloadPostSchema)) body: DownloadPost,
   ) {
     await this.increaseDownloadPost.execute({ postId: body.id });
+  }
+
+  @Put('like')
+  @HttpCode(204)
+  async toggleLike(
+    @UserId() userId: string,
+    @Body(new ZodValidationPipe(toggleLikeSchema)) body: ToggleLike,
+  ) {
+    await this.toggleLikeUseCase.execute({ postId: body.id, userId });
   }
 }
