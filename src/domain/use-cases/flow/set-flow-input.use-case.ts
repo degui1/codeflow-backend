@@ -21,7 +21,7 @@ export class SetFlowInputUseCase {
   constructor(private readonly languageExpression: LanguageExpressionService) {}
 
   private validateFieldValue(field: Field, value: unknown): void {
-    const { type, itemType, fields, defaultValues } = field;
+    const { type, itemType, fields, defaultValues, nameableKey } = field;
 
     if (defaultValues) {
       if (
@@ -72,19 +72,31 @@ export class SetFlowInputUseCase {
     }
 
     if (type === 'object') {
-      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new WsException(
-          `Expected type ${type}, but received ${typeof value}`,
-        );
-      }
+      if (nameableKey) {
+        if (typeof value !== 'string' || value.length === 0) {
+          throw new WsException(
+            `Expected type string, but received ${typeof value}`,
+          );
+        }
+      } else {
+        if (
+          typeof value !== 'object' ||
+          value === null ||
+          Array.isArray(value)
+        ) {
+          throw new WsException(
+            `Expected type ${type}, but received ${typeof value}`,
+          );
+        }
 
-      if (fields) {
-        for (const key in fields) {
-          if (fields[key].required && !(key in value)) {
-            throw new WsException(`Missing required field: ${key}`);
-          }
-          if (key in value) {
-            this.validateFieldValue(fields[key], value[key]);
+        if (fields) {
+          for (const key in fields) {
+            if (fields[key].required && !(key in value)) {
+              throw new WsException(`Missing required field: ${key}`);
+            }
+            if (key in value) {
+              this.validateFieldValue(fields[key], value[key]);
+            }
           }
         }
       }
@@ -95,6 +107,7 @@ export class SetFlowInputUseCase {
     obj: FlowInput | undefined,
     path: string,
     value: unknown,
+    isNameableField: boolean = false,
   ) {
     const parts = path.split('.').filter(Boolean);
     let curr = obj || {};
@@ -102,16 +115,21 @@ export class SetFlowInputUseCase {
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i];
       if (!(part in curr)) {
-        if (part === 'nameable') {
-          curr[String(value)] = {};
-        } else {
-          curr[part] = {};
-        }
+        curr[part] = {};
       }
 
       curr = curr[part] as Record<string, unknown>;
     }
-    curr[parts[parts.length - 1]] = value;
+
+    if (isNameableField) {
+      if (!(typeof curr[parts[parts.length - 1]] === 'object')) {
+        curr[parts[parts.length - 1]] = {};
+      }
+
+      Object.assign(curr[parts[parts.length - 1]], { keyName: value });
+    } else {
+      curr[parts[parts.length - 1]] = value;
+    }
   }
 
   async execute({
@@ -181,7 +199,7 @@ export class SetFlowInputUseCase {
 
     // console.log(expression);
 
-    this.setValueAtPath(inputs, path, value);
+    this.setValueAtPath(inputs, path, value, field.nameableKey);
 
     return {
       inputs,
