@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
+
 import { FlowInput } from 'src/core/schemas/data.schema';
 import { Rules } from 'src/core/schemas/flow.schema';
 import { LanguageExpressionService } from 'src/infra/language-expression/jsonata/language-expression.service';
-
 import { YamlService } from 'src/infra/yaml/yaml-js/yaml.service';
 
 interface CreateFlowUseCaseRequest {
@@ -21,14 +21,56 @@ export class CreateFlowUseCase {
     private readonly languageExpression: LanguageExpressionService,
   ) {}
 
-  private flatFields(inputs: FlowInput) {
-    const fields = Object.values(inputs.groups).flatMap(({ fields }) => fields);
+  private extractValuesFromInputs(inputs: FlowInput): any {
+    const processFields = (fields: unknown): unknown => {
+      if (Array.isArray(fields)) {
+        return fields.map(processFields);
+      }
+      if (typeof fields === 'object' && fields !== null) {
+        if ('keyName' in fields && fields.keyName && 'fields' in fields) {
+          return {
+            [fields.keyName as string]: processFields(fields.fields),
+          };
+        }
 
-    const flattedFields = fields.reduce((acc, group) => {
-      return Object.assign(acc, group);
-    }, {});
+        if ('fields' in fields) {
+          return processFields(fields.fields);
+        }
 
-    return flattedFields;
+        const result: Record<string, unknown> = {};
+
+        for (const [key, value] of Object.entries(fields)) {
+          const processed = processFields(value);
+
+          if (
+            typeof processed === 'object' &&
+            processed !== null &&
+            Object.keys(processed).length === 1 &&
+            typeof value === 'object' &&
+            value !== null &&
+            'keyName' in value
+          ) {
+            Object.assign(result, processed);
+          } else {
+            result[key] = processed;
+          }
+        }
+
+        return result;
+      }
+
+      return fields;
+    };
+
+    const output: Record<string, unknown> = {};
+    for (const [, groupValue] of Object.entries(inputs.groups)) {
+      if ('fields' in groupValue) {
+        const processed = processFields(groupValue.fields);
+
+        Object.assign(output, processed);
+      }
+    }
+    return output;
   }
 
   async execute({
@@ -79,7 +121,7 @@ export class CreateFlowUseCase {
       });
     }
 
-    const flow = this.yaml.stringifyYaml(this.flatFields(inputs));
+    const flow = this.yaml.stringifyYaml(this.extractValuesFromInputs(inputs));
 
     return { flow };
   }
