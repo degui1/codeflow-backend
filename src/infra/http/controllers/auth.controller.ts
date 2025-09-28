@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  Post,
   Query,
   Res,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { Public } from '../decorators/public.decorator';
 import { EnvService } from 'src/infra/env/env.service';
 import { LogoutUseCase } from 'src/domain/use-cases/auth/logout.use-case';
 import { UserId } from '../decorators/user.decorator';
+import { IsSessionValidUseCase } from 'src/domain/use-cases/auth/is-session-valid.use-case';
 
 const SESSION_COOKIE_KEY = 'session_cookie';
 const STATE_COOKIE_KEY = 'oauth_state';
@@ -32,6 +34,7 @@ export class AuthController {
     private readonly cookieService: CookieService,
     private readonly envService: EnvService,
     private readonly logoutUseCase: LogoutUseCase,
+    private readonly isSessionValidUseCase: IsSessionValidUseCase,
   ) {}
 
   private getOAuthService(provider: string) {
@@ -109,5 +112,21 @@ export class AuthController {
     const CLIENT_URL = this.envService.get('CLIENT_BASE_URL');
 
     return res.redirect(CLIENT_URL);
+  }
+
+  @Post('session-verify')
+  @Public()
+  async getIsAuthenticated(@Cookies(SESSION_COOKIE_KEY) sessionToken: string) {
+    if (!sessionToken) {
+      return { isAuthenticated: false };
+    }
+
+    const { isAuthenticated } = await this.isSessionValidUseCase.execute({
+      sessionToken,
+    });
+
+    return {
+      isAuthenticated,
+    };
   }
 }
