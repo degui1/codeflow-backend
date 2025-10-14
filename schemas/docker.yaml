@@ -1,0 +1,109 @@
+name: Docker Workflow
+
+groups:
+  image_group:
+    label: Imagem Base
+    description: Define a imagem base e os metadados principais do container.
+    fields:
+      from:
+        label: 'Imagem Base'
+        type: string
+        required: true
+        help: "Define a imagem base a ser utilizada (ex: node:18, python:3.10)."
+      maintainer:
+        label: 'Maintainer'
+        type: string
+        required: false
+        help: Nome ou e-mail do responsável pela imagem.
+
+  environment_group:
+    label: Variáveis de Ambiente
+    description: Define as variáveis de ambiente do container.
+    fields:
+      env:
+        label: 'Variáveis'
+        type: list
+        itemType: object
+        help: Lista de variáveis de ambiente a serem configuradas.
+        fields:
+          name:
+            label: 'Nome'
+            type: string
+            required: true
+            help: Nome da variável de ambiente.
+          value:
+            label: 'Valor'
+            type: string
+            required: true
+            help: Valor atribuído à variável.
+
+  commands_group:
+    label: Comandos de Execução
+    description: Define os comandos executados durante a criação da imagem.
+    fields:
+      run:
+        label: 'RUN'
+        type: list
+        itemType: string
+        help: "Lista de comandos executados durante a construção da imagem (ex: apt-get install)."
+      cmd:
+        label: 'CMD'
+        type: list
+        itemType: string
+        help: Define o comando padrão executado ao iniciar o container.
+      entrypoint:
+        label: 'ENTRYPOINT'
+        type: list
+        itemType: string
+        help: Define o ponto de entrada da aplicação no container.
+
+  ports_group:
+    label: Portas e Serviços
+    description: Define as portas expostas e serviços utilizados.
+    fields:
+      expose:
+        label: 'Expose'
+        type: list
+        itemType: number
+        help: "Lista de portas expostas pelo container (ex: 80, 3000, 5432)."
+
+  copy_group:
+    label: Arquivos e Diretórios
+    description: Define as cópias e diretórios de trabalho do container.
+    fields:
+      copy:
+        label: 'COPY'
+        type: list
+        itemType: object
+        help: Define os arquivos ou diretórios a serem copiados para a imagem.
+        fields:
+          source:
+            label: 'Origem'
+            type: string
+            required: true
+            help: Caminho do arquivo ou diretório no host.
+          destination:
+            label: 'Destino'
+            type: string
+            required: true
+            help: Caminho de destino dentro do container.
+      workdir:
+        label: 'WORKDIR'
+        type: string
+        help: Define o diretório de trabalho padrão dentro do container.
+
+rules:
+  required-image:
+    description: A imagem base (FROM) é obrigatória.
+    condition: $exists(groups.image_group.fields.from)
+    error: O campo 'FROM' é obrigatório para iniciar o build do Docker.
+
+#   required-cmd-or-entrypoint:
+#     description: O Dockerfile deve conter ao menos um comando de execução.
+#     condition: $or($exists(groups.commands_group.fields.cmd), $exists(groups.commands_group.fields.entrypoint))
+#     error: É necessário definir ao menos 'CMD' ou 'ENTRYPOINT' para execução.
+
+#   valid-ports:
+#     description: As portas devem estar entre 1 e 65535.
+#     condition: $all(groups.ports_group.fields.expose, function($p) { $p >= 1 and $p <= 65535 })
+#     error: Uma ou mais portas defini

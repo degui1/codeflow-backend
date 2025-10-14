@@ -1,0 +1,96 @@
+name: Workflow de Testes Unitários
+
+groups:
+  on_group:
+    label: Eventos
+    description: Define os eventos que disparam os testes unitários
+    fields:
+      on:
+        label: "Eventos"
+        type: list
+        itemType: string
+        required: true
+        help: "Eventos que acionam o workflow (ex: push, pull_request)"
+      branches:
+        label: "Branches"
+        type: list
+        itemType: string
+        required: false
+        help: "Branches nas quais o workflow deve rodar"
+
+  jobs_group:
+    label: Jobs
+    description: Define os jobs de execução dos testes unitários
+    repeatable: true
+    fields:
+      jobs:
+        label: "Jobs"
+        type: object
+        required: true
+        nameableKey: true
+        fields:
+          runs-on:
+            label: "Sistema Operacional"
+            type: string
+            required: true
+            help: "Sistema operacional do job (ex: ubuntu-latest)"
+          steps:
+            label: "Etapas"
+            type: list
+            itemType: object
+            required: true
+            help: "Etapas executadas no job"
+            fields:
+              name:
+                label: "Nome da Etapa"
+                type: string
+                required: true
+                help: "Nome da etapa"
+              run:
+                label: "Comando"
+                type: string
+                required: false
+                help: "Comando executado na etapa (ex: npm test)"
+              uses:
+                label: "Ação Reutilizável"
+                type: string
+                required: false
+                help: "Ação reutilizável do GitHub (ex: actions/checkout@v3)"
+              with:
+                label: "Parâmetros"
+                type: object
+                required: false
+                help: "Parâmetros para a ação reutilizável"
+
+  reports_group:
+    label: Relatórios
+    description: Relatórios e cobertura de testes unitários
+    fields:
+      reports:
+        label: "Relatórios"
+        type: list
+        itemType: string
+        required: false
+        help: "Caminhos ou formatos de relatórios gerados (ex: junit, lcov, cobertura.xml)"
+      coverage:
+        label: "Cobertura"
+        type: string
+        required: false
+        help: "Caminho ou formato do relatório de cobertura de código (ex: coverage/lcov.info)"
+
+rules:
+  required-job:
+    description: O workflow deve conter ao menos um job
+    condition: $count(groups.jobs_group.fields.jobs) > 0
+    error: É necessário definir ao menos um job de testes unitários
+
+  required-test-step:
+    description: Cada job deve possuir ao menos uma etapa que rode os testes unitários
+    condition: >
+      $exists(groups.jobs_group.fields.jobs.fields.steps.fields.run ~> /.*(jest|mocha|pytest|unittest|test).*/i)
+    error: Cada job precisa incluir uma etapa que execute testes unitários
+
+  required-report:
+    description: É recomendado que haja ao menos um relatório de cobertura
+    condition: $count(groups.reports_group.fields.coverage) > 0
+    error: Nenhum relatório de cobertura foi definido
