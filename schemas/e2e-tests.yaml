@@ -167,7 +167,7 @@ rules:
     description: Cada job deve possuir ao menos uma etapa que rode os testes
     condition: >
       $exists(groups.jobs_group.fields.jobs.fields.steps.fields.run ~> /.*(cypress|playwright|e2e|test).*/i)
-    error: Cada job precisa incluir uma etapa que execute testes E2E
+    error:  Cada job precisa conter ao menos uma etapa que execute testes automatizados. Certifique-se de incluir comandos como 'cypress', 'playwright', 'e2e', 'test' no campo 'run' de algum step.
 
   required-report:
     description: É recomendado que haja ao menos um relatório de testes

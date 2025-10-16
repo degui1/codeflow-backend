@@ -162,7 +162,7 @@ rules:
     description: Cada job deve possuir ao menos uma etapa que rode os testes unitários
     condition: >
       $exists(groups.jobs_group.fields.jobs.fields.steps.fields.run ~> /.*(jest|mocha|pytest|unittest|test).*/i)
-    error: Cada job precisa incluir uma etapa que execute testes unitários
+    error:  Cada job precisa conter ao menos uma etapa que execute testes automatizados. Certifique-se de incluir comandos como 'jest', 'mocha', 'pytest', 'unittest' no campo 'run' de algum step.
 
   required-report:
     description: É recomendado que haja ao menos um relatório de cobertura
