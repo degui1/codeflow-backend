@@ -10,6 +10,11 @@ groups:
         type: string
         required: true
         help: "Define a imagem base a ser utilizada (ex: node:18, python:3.10)."
+        defaultValues:
+          - node:18
+          - python:3.10
+          - ubuntu:22.04
+          - alpine:3.18
       maintainer:
         label: 'Maintainer'
         type: string

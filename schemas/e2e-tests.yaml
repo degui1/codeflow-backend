@@ -11,12 +11,66 @@ groups:
         itemType: string
         required: true
         help: "Eventos que acionam o workflow (ex: push, pull_request)"
+        defaultValues:
+          - push
+          - pull_request
+          - pull_request_target
+          - issues
+          - issue_comment
+          - fork
+          - release
+          - schedule
+          - workflow_dispatch
+          - workflow_call
+          - repository_dispatch
+          - discussion
+          - discussion_comment
+          - deployment
+          - deployment_status
+          - workflow_run
+          - create
+          - delete
+          - label
+          - milestone
+          - project
+          - project_card
+          - project_column
+          - page_build
+          - watch
+          - membership
+          - check_run
+          - check_suite
+          - commit_comment
+          - gollum
+          - member
+          - public
+          - pull_request_review
+          - pull_request_review_comment
+          - registry_package
+          - status
+          - team
+          - team_add
+          - content_reference
+          - merge_group
+          - projects_v2_item
+          - registry_package
+          - secret_scanning_alert
+          - security_advisory
+          - sponsorship
+          - repository_import
+          - repository_vulnerability_alert
+          - deployment_protection_rule
       branches:
         label: "Branches"
         type: list
         itemType: string
         required: false
         help: "Branches nas quais o workflow deve rodar"
+        defaultValues:
+          - main
+          - master
+          - feature
+          - prod
 
   jobs_group:
     label: Jobs
@@ -34,6 +88,19 @@ groups:
             type: string
             required: true
             help: "Sistema operacional do job (ex: ubuntu-latest)"
+            defaultValues:
+              - ubuntu-latest
+              - ubuntu-24.04
+              - ubuntu-22.04
+              - ubuntu-20.04
+              - windows-latest
+              - windows-2022
+              - windows-2019
+              - macos-latest
+              - macos-15
+              - macos-14
+              - macos-13
+              - macos-12
           steps:
             label: "Etapas"
             type: list
@@ -56,6 +123,10 @@ groups:
                 type: string
                 required: false
                 help: "Ação reutilizável do GitHub (ex: actions/checkout@v3)"
+                defaultValues:
+                  - actions/checkout@v4
+                  - actions/setup-node@v4
+                  - actions/setup-python@v5
               with:
                 label: "Parâmetros"
                 type: object
@@ -72,12 +143,19 @@ groups:
         itemType: string
         required: false
         help: "Caminhos ou formatos de relatórios gerados (ex: junit, allure)"
+        defaultValues:
+          - junit
+          - allure
       artifacts:
         label: "Artefatos"
         type: list
         itemType: string
         required: false
         help: "Arquivos ou diretórios a serem salvos após os testes (ex: logs/, screenshots/, videos/)"
+        defaultValues:
+          - logs/
+          - screenshots/
+          - videos/
 
 rules:
   required-job:
