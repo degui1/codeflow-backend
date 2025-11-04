@@ -53,10 +53,10 @@ export class AuthController {
   redirectToOAuth(@Res() res: Response, @Param('provider') provider: string) {
     const oauthService = this.getOAuthService(provider);
     const { url, state, codeVerifier } = oauthService.createAuthUrl();
-    const cookieOptions = this.cookieService.getSessionCookieOptions();
+    const oAuthCookieOptions = this.cookieService.getOAuthCookieOptions();
 
-    res.cookie(STATE_COOKIE_KEY, state, cookieOptions);
-    res.cookie(CODE_VERIFIER_COOKIE_KEY, codeVerifier, cookieOptions);
+    res.cookie(STATE_COOKIE_KEY, state, oAuthCookieOptions);
+    res.cookie(CODE_VERIFIER_COOKIE_KEY, codeVerifier, oAuthCookieOptions);
 
     return res.redirect(url);
   }
@@ -80,7 +80,7 @@ export class AuthController {
     );
 
     const sessionToken = crypto.randomUUID();
-    // const sessionToken = crypto.randomBytes(24).toString().normalize();
+    const cookieOptions = this.cookieService.getOAuthCookieOptions();
 
     await this.authUseCase.execute({
       accessToken,
@@ -95,7 +95,7 @@ export class AuthController {
     });
 
     const CLIENT_URL = this.envService.get('CLIENT_BASE_URL');
-    res.cookie(SESSION_COOKIE_KEY, sessionToken);
+    res.cookie(SESSION_COOKIE_KEY, sessionToken, cookieOptions);
 
     return res.redirect(CLIENT_URL);
   }
