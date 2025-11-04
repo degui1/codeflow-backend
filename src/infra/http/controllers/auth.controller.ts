@@ -9,7 +9,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { CookieService } from 'src/infra/auth/cookie.service';
 import { Cookies } from '../decorators/cookies.decorator';
 import { AuthUseCase } from 'src/domain/use-cases/auth/auth.use-case';
