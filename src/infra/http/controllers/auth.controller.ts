@@ -79,7 +79,8 @@ export class AuthController {
       codeVerifier,
     );
 
-    const sessionToken = crypto.randomBytes(24).toString().normalize();
+    const sessionToken = crypto.randomUUID();
+    // const sessionToken = crypto.randomBytes(24).toString().normalize();
 
     await this.authUseCase.execute({
       accessToken,
