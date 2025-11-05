@@ -22,7 +22,7 @@ export class CookieService {
     return {
       httpOnly: true,
       secure: this.envService.get('NODE_ENV') === 'production',
-      sameSite: 'lax' as const,
+      sameSite: 'None' as const,
       maxAge: this.SESSION_COOKIE_EXPIRE_TIME_SECONDS * 1000,
       path: '/',
     };
