@@ -6,6 +6,10 @@ export const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().default(3333),
   TEMPORARY_FOLDER: z.string().default('./temp/'),
+  FILES_FOLDER: z.string().default('./files/'),
+  LOG_FOLDER: z.string().default('./logs/'),
+  ERROR_LOG_FILENAME: z.string().default('error_log.log'),
+  LOG_FILENAME: z.string().default('logs.log'),
 
   // Database
   DATABASE_URL: z.string(),

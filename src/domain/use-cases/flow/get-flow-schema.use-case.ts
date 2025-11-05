@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
+import { CustomLoggerService } from 'src/core/logger/logger.service';
 import { YamlSchema, yamlSchema } from 'src/core/schemas/flow.schema';
 import { FlowSchemasRepository } from 'src/domain/repositories/flow-schemas.repository';
 import { YamlService } from 'src/infra/yaml/yaml-js/yaml.service';
@@ -20,6 +21,7 @@ export class GetFlowSchemaUseCase {
   constructor(
     private readonly flowSchemasRepository: FlowSchemasRepository,
     private readonly yamlService: YamlService,
+    private readonly logger: CustomLoggerService,
   ) {}
 
   async execute({
@@ -42,9 +44,19 @@ export class GetFlowSchemaUseCase {
         schema,
       };
     } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message, error.stack, 'WORKFLOW_BUILDER');
+
+        throw new WsException({
+          message: 'Unable to load flow schema',
+          error: error.cause,
+        });
+      }
+
+      this.logger.error(String(error), 'WORKFLOW_BUILDER');
       throw new WsException({
         message: 'Unable to load flow schema',
-        error: error instanceof Error ? error.cause : String(error),
+        error: String(error),
       });
     }
   }

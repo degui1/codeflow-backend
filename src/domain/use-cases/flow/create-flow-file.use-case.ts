@@ -21,7 +21,7 @@ export class CreateFlowFileUseCase {
     flow,
   }: CreateFlowFileUseCaseRequest): CreateFlowFileUseCaseResponse {
     const filename = `flow-${randomUUID()}.yaml`;
-    const filepath = resolve(this.envService.get('TEMPORARY_FOLDER'), filename);
+    const filepath = resolve(this.envService.get('FILES_FOLDER'), filename);
 
     writeFileSync(filepath, flow, { encoding: 'utf-8' });
 
