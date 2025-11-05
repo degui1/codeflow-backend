@@ -21,8 +21,8 @@ export class CookieService {
   getSessionCookieOptions() {
     return {
       httpOnly: true,
-      secure: this.envService.get('NODE_ENV') === 'production',
-      sameSite: 'None' as const,
+      secure: true,
+      sameSite: 'none' as const,
       maxAge: this.SESSION_COOKIE_EXPIRE_TIME_SECONDS * 1000,
       path: '/',
     };

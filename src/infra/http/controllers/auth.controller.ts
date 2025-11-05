@@ -80,7 +80,7 @@ export class AuthController {
     );
 
     const sessionToken = crypto.randomUUID();
-    const cookieOptions = this.cookieService.getOAuthCookieOptions();
+    const cookieOptions = this.cookieService.getSessionCookieOptions();
 
     await this.authUseCase.execute({
       accessToken,
